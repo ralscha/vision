@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<prerequisites>
+		<maven>3.3.9</maven>
+	</prerequisites>
+
+	<groupId>ch.rasc</groupId>
+	<artifactId>vision</artifactId>
+	<version>0.0.1</version>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.0.M3</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<start-class>ch.rasc.vision.Application</start-class>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.debug>true</maven.compiler.debug>
+		<maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
+		<build.timestamp>${maven.build.timestamp}</build.timestamp>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jetty</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>websocket-server</artifactId>
+					<groupId>org.eclipse.jetty.websocket</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>javax-websocket-server-impl</artifactId>
+					<groupId>org.eclipse.jetty.websocket</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>3.2.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.ralscha</groupId>
+			<artifactId>extdirectspring</artifactId>
+			<version>1.7.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.rasc</groupId>
+			<artifactId>extclassgenerator-annotations</artifactId>
+			<version>1.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
+			<version>0.4.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+
+		<dependency>
+			<groupId>ch.rasc</groupId>
+			<artifactId>constgen</artifactId>
+			<version>1.0.3</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.rasc</groupId>
+			<artifactId>bsoncodec</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.immutables</groupId>
+			<artifactId>value</artifactId>
+			<version>2.2</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.rasc</groupId>
+			<artifactId>bsoncodec-apt</artifactId>
+			<version>1.0.2</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-vision</artifactId>
+			<version>v1-rev16-1.22.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>guava-jdk5</artifactId>
+					<groupId>com.google.guava</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<finalName>vision</finalName>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>ch.rasc</groupId>
+							<artifactId>constgen</artifactId>
+						</exclude>
+						<exclude>
+							<groupId>ch.rasc</groupId>
+							<artifactId>bsoncodec-apt</artifactId>
+						</exclude>
+						<exclude>
+							<groupId>com.squareup</groupId>
+							<artifactId>javapoet</artifactId>
+						</exclude>
+						<exclude>
+							<groupId>com.google.auto</groupId>
+							<artifactId>auto-common</artifactId>
+						</exclude>
+						<exclude>
+							<groupId>com.google.auto.service</groupId>
+							<artifactId>auto-service</artifactId>
+						</exclude>
+						<exclude>
+							<groupId>org.immutables</groupId>
+							<artifactId>value</artifactId>
+						</exclude>
+						<exclude>
+							<groupId>com.google.code.findbugs</groupId>
+							<artifactId>jsr305</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5.1</version>
+				<configuration>
+					<debug>true</debug>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<compilerArgs>
+						<compilerArg>-parameters</compilerArg>
+						<compilerArg>-AgenerateCodecProvider=false</compilerArg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>application-development.yml</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.mysema.maven</groupId>
+				<artifactId>apt-maven-plugin</artifactId>
+				<version>1.1.2</version>
+				<executions>
+					<execution>
+						<id>modelgen</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<configuration>
+							<processor>ch.rasc.extclassgenerator.ModelAnnotationProcessor</processor>
+							<outputDirectory>${project.basedir}/client/app</outputDirectory>
+							<options>
+								<debug>true</debug>
+								<outputFormat>extjs5</outputFormat>
+								<includeValidation>all</includeValidation>
+								<surroundApiWithQuotes>true</surroundApiWithQuotes>
+								<lineEnding>LF</lineEnding>
+							</options>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>ch.rasc</groupId>
+						<artifactId>extclassgenerator</artifactId>
+						<version>1.1.0-SNAPSHOT</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>sencha-app-clean-development</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>clean</phase>
+						<configuration>
+							<executable>sencha</executable>
+							<workingDirectory>${basedir}/client</workingDirectory>
+							<arguments>
+								<argument>app</argument>
+								<argument>clean</argument>
+								<argument>development</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>sencha-app-clean</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>clean</phase>
+						<configuration>
+							<executable>sencha</executable>
+							<workingDirectory>${basedir}/client</workingDirectory>
+							<arguments>
+								<argument>app</argument>
+								<argument>clean</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>sencha-app-build</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>prepare-package</phase>
+						<configuration>
+							<executable>sencha</executable>
+							<workingDirectory>${basedir}/client</workingDirectory>
+							<arguments>
+								<argument>app</argument>
+								<argument>build</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<configuration>
+							<target>
+
+								<copy todir="${basedir}/target/classes/static"
+									includeEmptyDirs="false">
+									<fileset dir="${basedir}/client/build/production/Vision">
+										<exclude name="**/Readme.md" />
+										<exclude name="resources/ext/" />
+										<exclude name="resources/fonts/OpenSans*" />
+									</fileset>
+								</copy>
+
+								<replaceregexp file="${basedir}/target/classes/static/index.html"
+									match="&lt;!--.*--&gt;" replace="" />
+
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>sonatype</id>
+			<name>sonatype</name>
+			<url>https://oss.sonatype.org/content/groups/public</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>spring-snapshots</id>
+			<name>Spring Snapshots</name>
+			<url>http://repo.spring.io/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>http://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>sonatype</id>
+			<name>sonatype</name>
+			<url>https://oss.sonatype.org/content/groups/public</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+		<pluginRepository>
+			<id>spring-snapshots</id>
+			<name>Spring Snapshots</name>
+			<url>http://repo.spring.io/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>http://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+</project>

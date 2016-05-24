@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html manifest="">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Vision</title>
+<style>
+#loading_container {
+  display: block;
+  width: 360px;
+  margin: 200px auto;
+}
+#loading_container>div {
+  height: 100px;
+  width: 100px;
+  position: absolute;
+  border-radius: 50%;
+  background: #35baf6;
+  display: inline-block;
+}
+#loading_container>div:first-child {
+  animation: move 1s ease-in-out infinite alternate;
+  margin-left: 0;
+}
+#loading_container>div:nth-child(2) {
+  animation: move 1s ease-in-out -0.25s infinite alternate;
+  margin-left: 115px;
+}
+#loading_container>div:nth-child(3) {
+  animation: move 1s ease-in-out -0.5s infinite alternate;
+  margin-left: 230px;
+}
+#loading_container>div:nth-child(4) {
+  animation: move 1s ease-in-out -0.75s infinite alternate;
+  margin-left: 345px;
+}
+@-moz-keyframes move {
+  0% {
+    transform: translateY(-30px);
+  }
+  100% {
+    transform: translateY(15px);
+  }
+}
+@-webkit-keyframes move {
+  0% {
+    transform: translateY(-30px);
+  }
+  100% {
+    transform: translateY(15px);
+  }
+}
+@-o-keyframes move {
+  0% {
+    transform: translateY(-30px);
+  }
+  100% {
+    transform: translateY(15px);
+  }
+}
+@keyframes move {
+  0% {
+    transform: translateY(-30px);
+  }
+  100% {
+    transform: translateY(15px);
+  }
+}
+</style>
+<link rel="apple-touch-icon" sizes="57x57" href="resources/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="resources/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="resources/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="resources/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="resources/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="resources/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="resources/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="resources/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="resources/apple-touch-icon-180x180.png">
+<link rel="icon" type="image/png" href="resources/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="resources/favicon-194x194.png" sizes="194x194">
+<link rel="icon" type="image/png" href="resources/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="resources/android-chrome-192x192.png" sizes="192x192">
+<link rel="icon" type="image/png" href="resources/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="resources/manifest.json">
+<link rel="mask-icon" href="resources/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="shortcut icon" href="resources/favicon.ico">
+<meta name="msapplication-TileColor" content="#00aba9">
+<meta name="msapplication-TileImage" content="resources/mstile-144x144.png">
+<meta name="msapplication-config" content="resources/browserconfig.xml">
+<meta name="theme-color" content="#ffffff">
+<script id="microloader" data-app="f72e6876-aa30-4017-b3ce-1f3d61dfa163" type="text/javascript" src="bootstrap.js"></script>
+</head>
+<body><span id="loading_container"><div></div><div></div><div></div><div></div></span></body>
+</html>

@@ -1,0 +1,25 @@
+::-ms-clear {
+   display: none;
+}
+
+::-ms-reveal {
+   display: none;
+}
+
+::-webkit-input-placeholder { 
+   color: lighten($form-text-field-color, 60%);
+}
+
+:-moz-placeholder { 
+   color: lighten($form-text-field-color, 60%);
+   opacity: 1;
+}
+
+::-moz-placeholder {
+   color: lighten($form-text-field-color, 60%);
+   opacity: 1;
+}
+
+:-ms-input-placeholder {
+   color: lighten($form-text-field-color, 60%);
+}

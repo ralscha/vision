@@ -1,0 +1,16 @@
+spring:
+  resources:
+    cache-period: 
+
+server:
+  port: 8080
+  compression:
+    enabled: false
+
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
+    org.springframework: INFO
+    org.apache: INFO
+    ch: INFO
+  file: 
