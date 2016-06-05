@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfigur
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import ch.ralscha.extdirectspring.ExtDirectSpring;
 import ch.ralscha.extdirectspring.controller.ApiController;
@@ -17,6 +18,7 @@ import ch.ralscha.extdirectspring.controller.ApiController;
 		excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
 				value = ApiController.class) })
 @EnableAutoConfiguration(exclude = SpringDataWebAutoConfiguration.class)
+@EnableAsync
 public class Application {
 
 	public static final Logger logger = LoggerFactory.getLogger(Application.class);

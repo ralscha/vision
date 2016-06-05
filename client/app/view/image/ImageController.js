@@ -1,6 +1,20 @@
 Ext.define('Vision.view.image.ImageController', {
 	extend: 'Ext.app.ViewController',
 
+	init: function() {
+		var me = this;
+		Vision.EventBus.start(function() {
+			Vision.EventBus.subscribe("imageadded", me.onImageAdded.bind(me));	
+		});	
+	},
+	
+	onImageAdded: function(event) {
+		var imageJson = JSON.parse(event.data);
+		var newImage = Vision.model.Image.create(imageJson);
+		this.getStore('images').insert(0, newImage);
+		this.updateStores(newImage);
+	},
+	
 	getCanvas: function() {
 		if (!this.canvas) {
 			var canvasContainer = this.lookup('canvas');
@@ -225,20 +239,24 @@ Ext.define('Vision.view.image.ImageController', {
 			success: function(record) {
 				this.getStore('images').add(record);
 
-				record.texts().loadData(record.get('texts'));
-				record.labels().loadData(record.get('labels'));
-				record.logos().loadData(record.get('logos'));
-				record.landmarks().loadData(record.get('landmarks'));
-				record.faces().loadData(record.get('faces'));
-
-				this.getViewModel().set('selectedImage', null);
-				this.getViewModel().set('selectedImage', record);
+				this.updateStores(record);
 			},
 			callback: function(record, operation, success) {
 				this.getView().unmask();
 			},
 			scope: this
 		});
+	},
+	
+	updateStores: function(record) {
+		record.texts().loadData(record.get('texts'));
+		record.labels().loadData(record.get('labels'));
+		record.logos().loadData(record.get('logos'));
+		record.landmarks().loadData(record.get('landmarks'));
+		record.faces().loadData(record.get('faces'));
+
+		this.getViewModel().set('selectedImage', null);
+		this.getViewModel().set('selectedImage', record);		
 	}
 
 });

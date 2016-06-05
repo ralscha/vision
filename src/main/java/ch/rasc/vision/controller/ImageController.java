@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -20,11 +21,16 @@ import javax.validation.Validator;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.gridfs.GridFSBucket;
@@ -43,6 +49,7 @@ import ch.rasc.vision.config.MongoDb;
 import ch.rasc.vision.dto.VisionResult;
 import ch.rasc.vision.entity.CImage;
 import ch.rasc.vision.entity.Image;
+import ch.rasc.vision.eventbus.EventBusEvent;
 import ch.rasc.vision.util.QueryUtil;
 import ch.rasc.vision.util.ValidationMessages;
 import ch.rasc.vision.util.ValidationMessagesResult;
@@ -58,11 +65,14 @@ public class ImageController {
 
 	private final Validator validator;
 
+	private final ApplicationEventPublisher publisher;
+
 	public ImageController(MongoDb mongoDb, VisionService visionService,
-			Validator validator) {
+			Validator validator, ApplicationEventPublisher publisher) {
 		this.mongoDb = mongoDb;
 		this.visionService = visionService;
 		this.validator = validator;
+		this.publisher = publisher;
 	}
 
 	@GetMapping("/image/{id}/{filename:.+}")
@@ -108,6 +118,24 @@ public class ImageController {
 
 		List<Image> list = QueryUtil.toList(find);
 		return new ExtDirectStoreResult<>(list.size(), list);
+	}
+
+	@PostMapping("/pictureupload")
+	@Async
+	public void pictureupload(@RequestParam("file") MultipartFile file)
+			throws IOException {
+
+		Image image = new Image();
+		image.setId(UUID.randomUUID().toString());
+		image.setData("data:"+file.getContentType()+";base64,"
+				+ Base64.getEncoder().encodeToString(file.getBytes()));
+		image.setName(file.getName());
+		image.setSize(file.getSize());
+		image.setType(file.getContentType());
+
+		ValidationMessagesResult<Image> result = update(image);
+		
+		publisher.publishEvent(EventBusEvent.of("imageadded", result.getRecords().iterator().next()));
 	}
 
 	@ExtDirectMethod(STORE_MODIFY)

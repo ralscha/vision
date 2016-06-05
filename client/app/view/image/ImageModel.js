@@ -11,11 +11,7 @@ Ext.define('Vision.view.image.ImageModel', {
 			autoLoad: false,
 			remoteSort: false,
 			remoteFilter: false,
-			pageSize: 0,
-			sorters: [ {
-				property: 'name',
-				direction: 'ASC'
-			} ]
+			pageSize: 0
 		}
 	}
 

@@ -11,6 +11,11 @@ spring:
   resources:
     cache-period: 31556926
 
+  http:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
 logging:
   level:
     org.springframework: WARN
