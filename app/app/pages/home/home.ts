@@ -1,7 +1,8 @@
-import {Page, NavController, Loading, Toast} from 'ionic-angular';
+import {Component} from "@angular/core";
+import {NavController, Loading, Toast} from 'ionic-angular';
 import {Camera, Transfer} from 'ionic-native';
 
-@Page({
+@Component({
   templateUrl: 'build/pages/home/home.html'
 })
 export class HomePage {
