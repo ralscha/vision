@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -114,7 +115,7 @@ public class VisionService {
 
 							if (ea.getBoundingPoly() != null) {
 								t.setBoundingPoly(ea.getBoundingPoly().getVertices()
-										.stream().map(v -> {
+										.stream().filter(Objects::nonNull).map(v -> {
 											Vertex vertex = new Vertex();
 											vertex.setX(v.getX());
 											vertex.setY(v.getY());
