@@ -10,7 +10,7 @@ export class HomePage {
   private imageUploaded: boolean = true;
   private loading: Loading;
 
-  constructor(private nav: NavController) {
+  constructor(private navController: NavController) {
     this.loading = Loading.create({
       content: "Uploading picture..."
     });
@@ -19,7 +19,7 @@ export class HomePage {
   upload() {
     const fileTransfer = new Transfer();
 
-    this.nav.present(this.loading);
+    this.navController.present(this.loading);
     fileTransfer.upload(this.imageSrc, "https://demo.rasc.ch/vision/pictureupload")
       .then(this.uploadSuccessful.bind(this))
       .catch(this.uploadFailed.bind(this));
@@ -34,7 +34,7 @@ export class HomePage {
       duration: 3000
     });
 
-    this.nav.present(toast);
+    this.navController.present(toast);
     Camera.cleanup();
   }
 
@@ -45,7 +45,7 @@ export class HomePage {
       duration: 3000
     });
 
-    this.nav.present(toast);
+    this.navController.present(toast);
     Camera.cleanup();
   }
 
