@@ -6,6 +6,7 @@ Ext.define('Vision.Application', {
 	name: 'Vision',
 
 	constructor: function() {
+		REMOTING_API.maxRetries = 0;
 		Ext.direct.Manager.addProvider(REMOTING_API);
 		this.callParent(arguments);
 	},
