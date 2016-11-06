@@ -16,10 +16,12 @@ Ext.define('Vision.view.image.ImageGrid', {
 		stripeRows: false
 	},
 
+	hideHeaders: true,
+
 	columns: [ {
-		text: 'Thumbnail',
 		menuDisabled: true,
 		flex: 1,
+		align: 'center',
 		dataIndex: 'thumbnail',
 		renderer: function(value) {
 			if (value) {
@@ -33,10 +35,20 @@ Ext.define('Vision.view.image.ImageGrid', {
 		xtype: 'toolbar',
 		dock: 'top',
 		items: [ {
-			text: 'New',
-			iconCls: 'x-fa fa-plus',
-			handler: 'onNewClick'
-		}, {
+			xtype: 'filefield',
+			allowBlank: true,
+			reference: 'filefield',
+			buttonOnly: true,
+			buttonText: 'Upload New Image...',
+			textAlign: 'left',
+			listeners: {
+				change: 'onImageChange'
+			}
+		} ]
+	}, {
+		xtype: 'toolbar',
+		dock: 'bottom',
+		items: [ {
 			text: 'Delete',
 			iconCls: 'x-fa fa-trash',
 			handler: 'onDeleteClick',

@@ -1,6 +1,7 @@
 spring:
   resources:
-    cache-period: 
+    cache-period: 0
+    static-locations: file:./client/
 
 server:
   port: 8080
@@ -9,7 +10,7 @@ server:
 
 logging:
   level:
-    org.springframework.data.mongodb: DEBUG
+    org.springframework.data.mongodb: INFO
     org.springframework: INFO
     org.apache: INFO
     ch: INFO

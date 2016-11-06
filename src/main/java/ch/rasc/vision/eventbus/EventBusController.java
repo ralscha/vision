@@ -18,11 +18,9 @@ public class EventBusController {
 	public SseEmitter eventbus(@PathVariable("id") String id) {
 		SseEmitter emitter = new SseEmitter(180_000L);
 		emitter.onTimeout(emitter::complete);
-		emitter.onCompletion(emitter::complete);
-
 		this.eventBus.registerClient(EventBusClient.of(id, emitter));
-
 		return emitter;
+
 	}
 
 	@GetMapping("/eventbus/subscribe/{id}/{event}")

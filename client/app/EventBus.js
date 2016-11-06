@@ -3,7 +3,7 @@ Ext.define("Vision.EventBus", {
 	singleton: true,
 
 	constructor: function() {
-		this.id = Ext.data.identifier.Uuid.create().generate()
+		this.id = Ext.data.identifier.Uuid.create().generate();
 	},
 
 	start: function(callback) {
@@ -16,7 +16,9 @@ Ext.define("Vision.EventBus", {
 	stop: function() {
 		Ext.Ajax.request({
 			url: 'eventbus/unsubscribe/' + this.id
-		}).always(function() {
+		})
+		.then()
+		.always(function() {
 			if (this.eventSource) {
 				this.eventSource.close();
 				this.eventSource = null;
@@ -28,14 +30,19 @@ Ext.define("Vision.EventBus", {
 	subscribe: function(eventName, listener) {
 		Ext.Ajax.request({
 			url: 'eventbus/subscribe/' + this.id + '/' + eventName
-		});
-		this.eventSource.addEventListener(eventName, listener, false);
+		})
+		.then(function() {
+			this.eventSource.addEventListener(eventName, listener, false);
+		}, this);
 	},
 
 	unsubscribe: function(eventName, listener) {
 		Ext.Ajax.request({
 			url: 'eventbus/unsubscribe/' + this.id + '/' + eventName
-		});
-		this.eventSource.removeEventListener(eventName, listener, false);
+		})
+		.then()
+		.always(function() {
+			this.eventSource.removeEventListener(eventName, listener, false);
+		}, this);
 	}
 });

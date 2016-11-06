@@ -4,17 +4,17 @@ Ext.define('Vision.view.image.ImageController', {
 	init: function() {
 		var me = this;
 		Vision.EventBus.start(function() {
-			Vision.EventBus.subscribe("imageadded", me.onImageAdded.bind(me));	
-		});	
+			Vision.EventBus.subscribe("imageadded", me.onImageAdded.bind(me));
+		});
 	},
-	
+
 	onImageAdded: function(event) {
 		var imageJson = JSON.parse(event.data);
 		var newImage = Vision.model.Image.create(imageJson);
 		this.getStore('images').insert(0, newImage);
 		this.updateStores(newImage);
 	},
-	
+
 	getCanvas: function() {
 		if (!this.canvas) {
 			var canvasContainer = this.lookup('canvas');
@@ -60,13 +60,11 @@ Ext.define('Vision.view.image.ImageController', {
 		}
 	},
 
-	onNewClick: function() {
+	onImageChange: function(tf) {		
 		var newImage = new Vision.model.Image();
 		this.getViewModel().set('selectedImage', newImage);
 		this.clearImage();
-	},
-
-	onImageChange: function(tf) {
+		
 		var me = this;
 		var file = tf.fileInputEl.dom.files[0];
 
@@ -90,8 +88,11 @@ Ext.define('Vision.view.image.ImageController', {
 			me.drawImageScaled(img);
 			image.set('data', imageData);
 			tf.reset();
+
+			me.save();
 		};
 		fileReader.readAsDataURL(file);
+
 	},
 
 	clearImage: function() {
@@ -210,7 +211,8 @@ Ext.define('Vision.view.image.ImageController', {
 		// var centerShift_x = (canvas.width - img.width * this.ratio) / 2;
 		// var centerShift_y = (canvas.height - img.height * this.ratio) / 2;
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.drawImage(img, 0, 0, img.width, img.height, 0/* centerShift_x */, 0/* centerShift_y */, img.width * this.ratio, img.height * this.ratio);
+		ctx.drawImage(img, 0, 0, img.width, img.height, 0/* centerShift_x */, 0/* centerShift_y */, img.width
+				* this.ratio, img.height * this.ratio);
 
 		this.image = img;
 	},
@@ -218,23 +220,21 @@ Ext.define('Vision.view.image.ImageController', {
 	onDeleteClick: function() {
 		var image = this.getViewModel().get('selectedImage');
 
-		Ext.Msg.confirm('Attention', 'Do you really want to delete: ' + image.get('name'), function(choice) {
+		Ext.Msg.confirm('Attention', 'Do you really want to delete the picture?', function(choice) {
 			if (choice === 'yes') {
-				image.erase({
-					success: function() {
-						this.getViewModel().set('selectedImage', null);
-						this.getStore('images').remove(image);
-						this.clearImage();
-					},
-					scope: this
-				});
+				imageController.destroy(image.getId(), function() {
+					this.getViewModel().set('selectedImage', null);
+					this.getStore('images').remove(image);
+					this.image = null;
+					this.clearImage();
+				}, this);
 			}
 		}, this);
 	},
 
-	onSaveClick: function() {
+	save: function() {
 		var image = this.getViewModel().get('selectedImage');
-		this.getView().mask('Saving...');
+		this.getView().mask('Uploading to the Server...');
 		image.save({
 			success: function(record) {
 				this.getStore('images').add(record);
@@ -247,7 +247,7 @@ Ext.define('Vision.view.image.ImageController', {
 			scope: this
 		});
 	},
-	
+
 	updateStores: function(record) {
 		record.texts().loadData(record.get('texts'));
 		record.labels().loadData(record.get('labels'));
@@ -256,7 +256,7 @@ Ext.define('Vision.view.image.ImageController', {
 		record.faces().loadData(record.get('faces'));
 
 		this.getViewModel().set('selectedImage', null);
-		this.getViewModel().set('selectedImage', record);		
+		this.getViewModel().set('selectedImage', record);
 	}
 
 });

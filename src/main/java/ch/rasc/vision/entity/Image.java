@@ -17,8 +17,7 @@ import ch.rasc.extclassgenerator.ModelField;
 @BsonDocument
 @Model(value = "Vision.model.Image", readMethod = "imageController.read",
 		createMethod = "imageController.update", updateMethod = "imageController.update",
-		destroyMethod = "imageController.destroy", rootProperty = "records",
-		identifier = "uuid", extend = "Vision.model.Base",
+		rootProperty = "records", identifier = "uuid", extend = "Vision.model.Base",
 		hasMany = { "Label", "Logo", "Landmark", "Text", "Face" }, writeAllFields = false)
 @JsonInclude(Include.NON_NULL)
 public class Image {

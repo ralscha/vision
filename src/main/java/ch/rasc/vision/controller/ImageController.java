@@ -275,20 +275,17 @@ public class ImageController {
 		return result;
 	}
 
-	@ExtDirectMethod(STORE_MODIFY)
-	public ExtDirectStoreResult<Image> destroy(Image destroyBinary) {
-		ExtDirectStoreResult<Image> result = new ExtDirectStoreResult<>();
-
+	@ExtDirectMethod
+	public boolean destroy(String id) {
 		Image doc = this.mongoDb.getCollection(Image.class)
-				.findOneAndDelete(Filters.eq(CImage.id, destroyBinary.getId()));
+				.findOneAndDelete(Filters.eq(CImage.id, id));
 
 		if (doc != null && doc.getFileId() != null) {
 			GridFSBucket bucket = this.mongoDb.createBucket("image");
 			bucket.delete(doc.getFileId());
 		}
 
-		result.setSuccess(Boolean.TRUE);
-		return result;
+		return true;
 	}
 
 }

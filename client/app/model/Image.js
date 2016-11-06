@@ -31,8 +31,7 @@ Ext.define("Vision.model.Image",
     api : {
       read : "imageController.read",
       create : "imageController.update",
-      update : "imageController.update",
-      destroy : "imageController.destroy"
+      update : "imageController.update"
     },
     reader : {
       rootProperty : "records"

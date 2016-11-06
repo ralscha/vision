@@ -1,6 +1,5 @@
 Ext.define('Vision.view.image.Vison', {
 	extend: 'Ext.tab.Panel',
-	requires: [ 'Ext.ux.rating.Picker' ],
 
 	bind: {
 		disabled: '{!selectedImage}'

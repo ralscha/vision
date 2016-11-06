@@ -1,6 +1,6 @@
 Ext.define('Vision.view.image.ImageForm', {
-	extend: 'Ext.form.Panel',
-	reference: 'imageForm',
+	extend: 'Ext.panel.Panel',
+
 	layout: {
 		type: 'vbox',
 		align: 'stretch'
@@ -23,27 +23,7 @@ Ext.define('Vision.view.image.ImageForm', {
 				tag: 'canvas'
 			}
 		} ]
-	} ],
-
-	dockedItems: [ {
-		xtype: 'toolbar',
-		dock: 'top',
-		items: [ {
-			xtype: 'filefield',
-			allowBlank: true,
-			reference: 'filefield',
-			buttonOnly: true,
-			buttonText: 'Select Image...',
-			textAlign: 'left',
-			listeners: {
-				change: 'onImageChange'
-			}
-		}, {
-			text: 'Save',
-			iconCls: 'x-fa fa-floppy-o',
-			handler: 'onSaveClick',
-			formBind: true
-		} ]
 	} ]
+
 
 });

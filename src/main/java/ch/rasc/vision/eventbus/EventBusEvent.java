@@ -15,11 +15,22 @@ public interface EventBusEvent {
 	@Nullable
 	Object data();
 
+	/**
+	 * true: combine data with previous unsent messages
+	 * false: discard previous unsent messages
+	 */
+	@Value.Parameter
+	boolean combine();
+
 	public static EventBusEvent of(String name) {
-		return ImmutableEventBusEvent.of(name, null);
+		return ImmutableEventBusEvent.of(name, null, false);
 	}
 
 	public static EventBusEvent of(String name, Object data) {
-		return ImmutableEventBusEvent.of(name, data);
+		return ImmutableEventBusEvent.of(name, data, false);
+	}
+	
+	public static EventBusEvent ofCombine(String name, Object data) {
+		return ImmutableEventBusEvent.of(name, data, true);
 	}
 }
