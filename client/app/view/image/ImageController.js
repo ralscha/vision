@@ -2,10 +2,8 @@ Ext.define('Vision.view.image.ImageController', {
 	extend: 'Ext.app.ViewController',
 
 	init: function() {
-		var me = this;
-		Vision.EventBus.start(function() {
-			Vision.EventBus.subscribe("imageadded", me.onImageAdded.bind(me));
-		});
+		Vision.EventBus.start();		
+		Vision.EventBus.subscribe("imageadded", this.onImageAdded.bind(this));
 	},
 
 	onImageAdded: function(event) {

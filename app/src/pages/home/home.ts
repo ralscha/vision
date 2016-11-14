@@ -1,17 +1,18 @@
-import {Component} from "@angular/core";
-import {NavController, Loading, Toast} from 'ionic-angular';
-import {Camera, Transfer} from 'ionic-native';
+import { Component } from '@angular/core';
+import { LoadingController, ToastController, Loading } from 'ionic-angular';
+import { Camera, Transfer } from 'ionic-native';
 
 @Component({
-  templateUrl: 'build/pages/home/home.html'
+  selector: 'page-home',
+  templateUrl: 'home.html'
 })
 export class HomePage {
-  private imageSrc: string;
-  private imageUploaded: boolean = true;
+  imageSrc: string;
+  imageUploaded: boolean = true;
   private loading: Loading;
 
-  constructor(private navController: NavController) {
-    this.loading = Loading.create({
+  constructor(public loadingCtrl: LoadingController, private toastCtrl: ToastController) {
+    this.loading = loadingCtrl.create({
       content: "Uploading picture..."
     });
   }
@@ -19,7 +20,7 @@ export class HomePage {
   upload() {
     const fileTransfer = new Transfer();
 
-    this.navController.present(this.loading);
+    this.loading.present();
     fileTransfer.upload(this.imageSrc, "https://demo.rasc.ch/vision/pictureupload")
       .then(this.uploadSuccessful.bind(this))
       .catch(this.uploadFailed.bind(this));
@@ -29,23 +30,23 @@ export class HomePage {
     this.imageUploaded = true;
     this.loading.dismiss();
 
-    const toast = Toast.create({
+    const toast = this.toastCtrl.create({
       message: 'Successfully uploaded',
       duration: 3000
     });
 
-    this.navController.present(toast);
+    toast.present();
     Camera.cleanup();
   }
 
   uploadFailed() {
     this.loading.dismiss();
-    const toast = Toast.create({
+    const toast = this.toastCtrl.create({
       message: 'Upload failed',
       duration: 3000
     });
 
-    this.navController.present(toast);
+    toast.present();
     Camera.cleanup();
   }
 

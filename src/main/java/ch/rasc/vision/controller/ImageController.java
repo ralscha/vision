@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.model.Filters;
@@ -44,12 +45,12 @@ import com.mongodb.client.model.Updates;
 import ch.ralscha.extdirectspring.annotation.ExtDirectMethod;
 import ch.ralscha.extdirectspring.bean.ExtDirectStoreReadRequest;
 import ch.ralscha.extdirectspring.bean.ExtDirectStoreResult;
+import ch.rasc.sse.eventbus.SseEvent;
 import ch.rasc.vision.Application;
 import ch.rasc.vision.config.MongoDb;
 import ch.rasc.vision.dto.VisionResult;
 import ch.rasc.vision.entity.CImage;
 import ch.rasc.vision.entity.Image;
-import ch.rasc.vision.eventbus.EventBusEvent;
 import ch.rasc.vision.util.QueryUtil;
 import ch.rasc.vision.util.ValidationMessages;
 import ch.rasc.vision.util.ValidationMessagesResult;
@@ -67,12 +68,16 @@ public class ImageController {
 
 	private final ApplicationEventPublisher publisher;
 
+	private final ObjectMapper objectMapper;
+
 	public ImageController(MongoDb mongoDb, VisionService visionService,
-			Validator validator, ApplicationEventPublisher publisher) {
+			Validator validator, ApplicationEventPublisher publisher,
+			ObjectMapper objectMapper) {
 		this.mongoDb = mongoDb;
 		this.visionService = visionService;
 		this.validator = validator;
 		this.publisher = publisher;
+		this.objectMapper = objectMapper;
 	}
 
 	@GetMapping("/image/{id}/{filename:.+}")
@@ -127,15 +132,16 @@ public class ImageController {
 
 		Image image = new Image();
 		image.setId(UUID.randomUUID().toString());
-		image.setData("data:"+file.getContentType()+";base64,"
+		image.setData("data:" + file.getContentType() + ";base64,"
 				+ Base64.getEncoder().encodeToString(file.getBytes()));
 		image.setName(file.getName());
 		image.setSize(file.getSize());
 		image.setType(file.getContentType());
 
 		ValidationMessagesResult<Image> result = update(image);
-		
-		publisher.publishEvent(EventBusEvent.of("imageadded", result.getRecords().iterator().next()));
+
+		String json = objectMapper.writeValueAsString(result.getRecords().iterator().next());
+		publisher.publishEvent(SseEvent.of("imageadded", json));
 	}
 
 	@ExtDirectMethod(STORE_MODIFY)
