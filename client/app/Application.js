@@ -12,7 +12,6 @@ Ext.define('Vision.Application', {
 	},
 
 	launch: function() {
-		Ext.fly('loading_container').destroy();
 	},
 
 	onAppUpdate: function() {
