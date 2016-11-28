@@ -312,7 +312,7 @@
     "production": {
         "output": {
             "appCache": {
-                "enable": false,
+                "enable": true,
                 "path": "cache.appcache"
             }
         },
@@ -534,5 +534,5 @@
      * Uniquely generated id for this application, used as prefix for localStorage keys.
      * Normally you should never change this value.
      */
-    "id": "f72e6876-aa30-4017-b3ce-1f3d61dfa163"
+    "id": "4d30f96e-a2aa-4adf-b9ca-df5edbfd142f"
 }

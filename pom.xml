@@ -58,7 +58,7 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
-			<version>3.3.0</version>
+			<version>3.4.0</version>
 		</dependency>
 
 		<dependency>
@@ -78,12 +78,6 @@
 			<artifactId>thumbnailator</artifactId>
 			<version>0.4.8</version>
 		</dependency>
-
-		<dependency>
-			<groupId>net.jodah</groupId>
-			<artifactId>expiringmap</artifactId>
-			<version>0.5.7</version>
-		</dependency>		
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -121,7 +115,7 @@
 		<dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-vision</artifactId>
-			<version>v1-rev29-1.22.0</version>
+			<version>v1-rev30-1.22.0</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>guava-jdk5</artifactId>
