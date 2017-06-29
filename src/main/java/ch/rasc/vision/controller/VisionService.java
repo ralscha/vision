@@ -49,7 +49,7 @@ public class VisionService {
 		Builder builder = ImmutableVisionResult.builder();
 		if (StringUtils.hasText(this.appConfig.getVisionKey())) {
 			BatchAnnotateImagesResponse response = sendRequest(base64data);
-			//System.out.println(response);
+			// System.out.println(response);
 			List<AnnotateImageResponse> responses = response.getResponses();
 			if (responses != null) {
 

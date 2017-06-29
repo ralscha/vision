@@ -18,7 +18,7 @@ public class EventBusController {
 
 	@GetMapping("/eventbus/{id}")
 	public SseEmitter eventbus(@PathVariable("id") String id) {
-		return eventBus.createSseEmitter(id, "imageadded");
+		return this.eventBus.createSseEmitter(id, "imageadded");
 	}
 
 }

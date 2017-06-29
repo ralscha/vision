@@ -140,8 +140,9 @@ public class ImageController {
 
 		ValidationMessagesResult<Image> result = update(image);
 
-		String json = objectMapper.writeValueAsString(result.getRecords().iterator().next());
-		publisher.publishEvent(SseEvent.of("imageadded", json));
+		String json = this.objectMapper
+				.writeValueAsString(result.getRecords().iterator().next());
+		this.publisher.publishEvent(SseEvent.of("imageadded", json));
 	}
 
 	@ExtDirectMethod(STORE_MODIFY)
