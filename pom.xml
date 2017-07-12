@@ -286,7 +286,6 @@
 									<fileset dir="${basedir}/client/build/production/Vision">
 										<exclude name="**/Readme.md" />
 										<exclude name="resources/ext/" />
-										<exclude name="resources/fonts/OpenSans*" />
 									</fileset>
 								</copy>
 
