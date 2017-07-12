@@ -1,6 +1,6 @@
 Ext.define('Vision.Application', {
 	extend: 'Ext.app.Application',
-	requires: [ 'Ext.direct.*' ],
+	requires: [ 'Ext.plugin.Viewport', 'Ext.direct.*' ],
 	name: 'Vision',
 
     quickTips: false,
