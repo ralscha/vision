@@ -2,6 +2,8 @@ package ch.rasc.vision.entity;
 
 import java.util.List;
 
+import com.google.cloud.vision.v1.Likelihood;
+
 import ch.rasc.bsoncodec.annotation.BsonDocument;
 import ch.rasc.extclassgenerator.Model;
 
@@ -15,13 +17,13 @@ public class Face {
 	private Float detectionConfidence;
 	private Float landmarkingConfidence;
 
-	private String joy;
-	private String sorrow;
-	private String anger;
-	private String surprise;
-	private String underExposed;
-	private String blurred;
-	private String headwear;
+	private Likelihood joy;
+	private Likelihood sorrow;
+	private Likelihood anger;
+	private Likelihood surprise;
+	private Likelihood underExposed;
+	private Likelihood blurred;
+	private Likelihood headwear;
 
 	private float joyRating;
 	private float sorrowRating;
@@ -75,60 +77,84 @@ public class Face {
 		this.landmarkingConfidence = landmarkingConfidence;
 	}
 
-	public String getJoy() {
+	public Likelihood getJoy() {
 		return this.joy;
 	}
 
-	public void setJoy(String joy) {
+	public void setJoy(Likelihood joy) {
 		this.joy = joy;
 	}
 
-	public String getSorrow() {
+	public Likelihood getSorrow() {
 		return this.sorrow;
 	}
 
-	public void setSorrow(String sorrow) {
+	public void setSorrow(Likelihood sorrow) {
 		this.sorrow = sorrow;
 	}
 
-	public String getAnger() {
+	public Likelihood getAnger() {
 		return this.anger;
 	}
 
-	public void setAnger(String anger) {
+	public void setAnger(Likelihood anger) {
 		this.anger = anger;
 	}
 
-	public String getSurprise() {
+	public Likelihood getSurprise() {
 		return this.surprise;
 	}
 
-	public void setSurprise(String surprise) {
+	public void setSurprise(Likelihood surprise) {
 		this.surprise = surprise;
 	}
 
-	public String getUnderExposed() {
+	public Likelihood getUnderExposed() {
 		return this.underExposed;
 	}
 
-	public void setUnderExposed(String underExposed) {
+	public void setUnderExposed(Likelihood underExposed) {
 		this.underExposed = underExposed;
 	}
 
-	public String getBlurred() {
+	public Likelihood getBlurred() {
 		return this.blurred;
 	}
 
-	public void setBlurred(String blurred) {
+	public void setBlurred(Likelihood blurred) {
 		this.blurred = blurred;
 	}
 
-	public String getHeadwear() {
+	public Likelihood getHeadwear() {
 		return this.headwear;
 	}
 
-	public void setHeadwear(String headwear) {
+	public void setHeadwear(Likelihood headwear) {
 		this.headwear = headwear;
+	}
+
+	public List<Vertex> getBoundingPoly() {
+		return this.boundingPoly;
+	}
+
+	public void setBoundingPoly(List<Vertex> boundingPoly) {
+		this.boundingPoly = boundingPoly;
+	}
+
+	public List<Vertex> getFdBoundingPoly() {
+		return this.fdBoundingPoly;
+	}
+
+	public void setFdBoundingPoly(List<Vertex> fdBoundingPoly) {
+		this.fdBoundingPoly = fdBoundingPoly;
+	}
+
+	public List<FaceLandmark> getLandmarks() {
+		return this.landmarks;
+	}
+
+	public void setLandmarks(List<FaceLandmark> landmarks) {
+		this.landmarks = landmarks;
 	}
 
 	public float getJoyRating() {
@@ -185,30 +211,6 @@ public class Face {
 
 	public void setHeadwearRating(float headwearRating) {
 		this.headwearRating = headwearRating;
-	}
-
-	public List<Vertex> getBoundingPoly() {
-		return this.boundingPoly;
-	}
-
-	public void setBoundingPoly(List<Vertex> boundingPoly) {
-		this.boundingPoly = boundingPoly;
-	}
-
-	public List<Vertex> getFdBoundingPoly() {
-		return this.fdBoundingPoly;
-	}
-
-	public void setFdBoundingPoly(List<Vertex> fdBoundingPoly) {
-		this.fdBoundingPoly = fdBoundingPoly;
-	}
-
-	public List<FaceLandmark> getLandmarks() {
-		return this.landmarks;
-	}
-
-	public void setLandmarks(List<FaceLandmark> landmarks) {
-		this.landmarks = landmarks;
 	}
 
 }

@@ -27,8 +27,93 @@ Ext.define('Vision.view.image.Vison', {
 			xtype: 'widgetcolumn',
 			widget: {
 				xtype: 'progressbarwidget',
-				textTpl: [ '{value:number("0.00")}' ]
+				textTpl: [ '{value:percent("0")}' ]
 			}
+		} ]
+	}, {
+		xtype: 'panel',
+		title: 'Web',
+		layout: {
+			type: 'vbox',
+			align: 'stretch'
+		},
+		items: [ {
+			xtype: 'grid',
+			flex: 1,
+			viewConfig: {
+				stripeRows: false
+			},
+			bind: {
+				store: '{selectedImage.web.webEntities}'
+			},
+			columns: [ {
+				text: 'Description',
+				dataIndex: 'description',
+				flex: 1,
+				menuDisabled: true
+			}, {
+				text: 'Score',
+				dataIndex: 'score',
+				flex: 1,
+				menuDisabled: true
+			} ]
+		}, {
+			xtype: 'grid',
+			title: 'Full Matching Images',
+			flex: 1,
+			viewConfig: {
+				stripeRows: false
+			},
+			bind: {
+				store: '{selectedImage.web.fullMatchingImages}'
+			},
+			columns: [ {
+				text: 'URL',
+				dataIndex: 'url',
+				flex: 1,
+				menuDisabled: true,
+				renderer: function(value) {
+				    return value.replace(/(https?:\/\/\S+)/g, '<a target="_blank" href="$1">$1</a>');
+				}
+			} ]
+		}, {
+			xtype: 'grid',
+			title: 'Partial Matching Images',
+			flex: 1,
+			viewConfig: {
+				stripeRows: false
+			},
+			bind: {
+				store: '{selectedImage.web.partialMatchingImages}'
+			},
+			columns: [ {
+				text: 'URL',
+				dataIndex: 'url',
+				flex: 1,
+				menuDisabled: true,
+				renderer: function(value) {
+				    return value.replace(/(https?:\/\/\S+)/g, '<a target="_blank" href="$1">$1</a>');
+				}
+			} ]
+		}, {
+			xtype: 'grid',
+			title: 'Pages With Matching Images',
+			flex: 1,
+			viewConfig: {
+				stripeRows: false
+			},
+			bind: {
+				store: '{selectedImage.web.pagesWithMatchingImages}'
+			},
+			columns: [ {
+				text: 'URL',
+				dataIndex: 'url',
+				flex: 1,
+				menuDisabled: true,
+				renderer: function(value) {
+				    return value.replace(/(https?:\/\/\S+)/g, '<a target="_blank" href="$1">$1</a>');
+				}
+			} ]
 		} ]
 	}, {
 		xtype: 'panel',
@@ -112,7 +197,7 @@ Ext.define('Vision.view.image.Vison', {
 				xtype: 'widgetcolumn',
 				widget: {
 					xtype: 'progressbarwidget',
-					textTpl: [ '{value:number("0.00")}' ]
+					textTpl: [ '{value:percent("0")}' ]
 				}
 			} ]
 		}, {
@@ -164,7 +249,7 @@ Ext.define('Vision.view.image.Vison', {
 				xtype: 'widgetcolumn',
 				widget: {
 					xtype: 'progressbarwidget',
-					textTpl: [ '{value:number("0.00")}' ]
+					textTpl: [ '{value:percent("0")}' ]
 				}
 			} ]
 		}, {
@@ -206,7 +291,7 @@ Ext.define('Vision.view.image.Vison', {
 			xtype: 'widgetcolumn',
 			widget: {
 				xtype: 'progressbarwidget',
-				textTpl: [ '{value:number("0.00")}' ]
+				textTpl: [ '{value:percent("0")}' ]
 			}
 		} ]
 

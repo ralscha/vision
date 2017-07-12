@@ -12,6 +12,7 @@ import ch.rasc.vision.entity.Landmark;
 import ch.rasc.vision.entity.Logo;
 import ch.rasc.vision.entity.SafeSearch;
 import ch.rasc.vision.entity.Text;
+import ch.rasc.vision.entity.Web;
 
 @Value.Style(jdkOnly = true)
 @Value.Immutable
@@ -34,4 +35,7 @@ public interface VisionResult {
 
 	@Nullable
 	List<Face> faces();
+
+	@Nullable
+	Web web();
 }

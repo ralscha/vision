@@ -100,15 +100,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.google.apis</groupId>
-			<artifactId>google-api-services-vision</artifactId>
-			<version>v1-rev358-1.22.0</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>guava-jdk5</artifactId>
-					<groupId>com.google.guava</groupId>
-				</exclusion>
-			</exclusions>
+		    <groupId>com.google.cloud</groupId>
+		    <artifactId>google-cloud-vision</artifactId>
+		    <version>0.20.1-beta</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.auth</groupId>
+			<artifactId>google-auth-library-credentials</artifactId>
+			<version>0.7.0</version>
 		</dependency>
 
 	    <dependency>

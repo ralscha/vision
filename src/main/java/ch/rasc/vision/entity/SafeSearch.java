@@ -1,48 +1,50 @@
 package ch.rasc.vision.entity;
 
+import com.google.cloud.vision.v1.Likelihood;
+
 import ch.rasc.bsoncodec.annotation.BsonDocument;
 
 @BsonDocument
 public class SafeSearch {
 
-	private String adult;
-	private String spoof;
-	private String medical;
-	private String violence;
+	private Likelihood adult;
+	private Likelihood spoof;
+	private Likelihood medical;
+	private Likelihood violence;
 	private float adultRating;
 	private float spoofRating;
 	private float medicalRating;
 	private float violenceRating;
 
-	public String getAdult() {
+	public Likelihood getAdult() {
 		return this.adult;
 	}
 
-	public void setAdult(String adult) {
+	public void setAdult(Likelihood adult) {
 		this.adult = adult;
 	}
 
-	public String getSpoof() {
+	public Likelihood getSpoof() {
 		return this.spoof;
 	}
 
-	public void setSpoof(String spoof) {
+	public void setSpoof(Likelihood spoof) {
 		this.spoof = spoof;
 	}
 
-	public String getMedical() {
+	public Likelihood getMedical() {
 		return this.medical;
 	}
 
-	public void setMedical(String medical) {
+	public void setMedical(Likelihood medical) {
 		this.medical = medical;
 	}
 
-	public String getViolence() {
+	public Likelihood getViolence() {
 		return this.violence;
 	}
 
-	public void setViolence(String violence) {
+	public void setViolence(Likelihood violence) {
 		this.violence = violence;
 	}
 

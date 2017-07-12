@@ -40,6 +40,8 @@ public class Image {
 
 	private SafeSearch safeSearch;
 
+	private Web web;
+
 	private String type;
 
 	private long size;
@@ -155,6 +157,14 @@ public class Image {
 
 	public void setFaces(List<Face> faces) {
 		this.faces = faces;
+	}
+
+	public Web getWeb() {
+		return this.web;
+	}
+
+	public void setWeb(Web web) {
+		this.web = web;
 	}
 
 }

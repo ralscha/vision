@@ -250,8 +250,13 @@ public class ImageController {
 							addUpdates.add(
 									Updates.set(CImage.faces, Collections.emptyList()));
 						}
+
+						if (result.web() != null) {
+							addUpdates.add(Updates.set(CImage.web, result.web()));
+						}
+
 					}
-					catch (IOException e) {
+					catch (Exception e) {
 						Application.logger.error("vision", e);
 					}
 

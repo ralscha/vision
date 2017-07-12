@@ -25,6 +25,12 @@ import ch.rasc.vision.entity.TextCodec;
 import ch.rasc.vision.entity.UUIDStringGenerator;
 import ch.rasc.vision.entity.Vertex;
 import ch.rasc.vision.entity.VertexCodec;
+import ch.rasc.vision.entity.Web;
+import ch.rasc.vision.entity.WebCodec;
+import ch.rasc.vision.entity.WebEntity;
+import ch.rasc.vision.entity.WebEntityCodec;
+import ch.rasc.vision.entity.WebUrl;
+import ch.rasc.vision.entity.WebUrlCodec;
 
 public final class PojoCodecProvider implements CodecProvider {
 	private final UUIDStringGenerator uUIDStringGenerator;
@@ -69,6 +75,15 @@ public final class PojoCodecProvider implements CodecProvider {
 		}
 		if (clazz.equals(FaceLandmark.class)) {
 			return (Codec<T>) new FaceLandmarkCodec();
+		}
+		if (clazz.equals(Web.class)) {
+			return (Codec<T>) new WebCodec(registry);
+		}
+		if (clazz.equals(WebEntity.class)) {
+			return (Codec<T>) new WebEntityCodec();
+		}
+		if (clazz.equals(WebUrl.class)) {
+			return (Codec<T>) new WebUrlCodec();
 		}
 		return null;
 	}

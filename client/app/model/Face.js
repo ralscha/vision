@@ -17,27 +17,6 @@ Ext.define("Vision.model.Face",
     name : "landmarkingConfidence",
     type : "number"
   }, {
-    name : "joy",
-    type : "string"
-  }, {
-    name : "sorrow",
-    type : "string"
-  }, {
-    name : "anger",
-    type : "string"
-  }, {
-    name : "surprise",
-    type : "string"
-  }, {
-    name : "underExposed",
-    type : "string"
-  }, {
-    name : "blurred",
-    type : "string"
-  }, {
-    name : "headwear",
-    type : "string"
-  }, {
     name : "joyRating",
     type : "number"
   }, {

@@ -4,16 +4,16 @@ import ch.rasc.bsoncodec.annotation.BsonDocument;
 
 @BsonDocument
 public class FaceLandmark {
-	private String type;
+	private com.google.cloud.vision.v1.FaceAnnotation.Landmark.Type type;
 	private float x;
 	private float y;
 	private float z;
 
-	public String getType() {
+	public com.google.cloud.vision.v1.FaceAnnotation.Landmark.Type getType() {
 		return this.type;
 	}
 
-	public void setType(String type) {
+	public void setType(com.google.cloud.vision.v1.FaceAnnotation.Landmark.Type type) {
 		this.type = type;
 	}
 

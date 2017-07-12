@@ -6,14 +6,14 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "app")
 @Component
 public class AppConfig {
-	private String visionKey;
+	private String credentialsPath;
 
-	public String getVisionKey() {
-		return this.visionKey;
+	public String getCredentialsPath() {
+		return this.credentialsPath;
 	}
 
-	public void setVisionKey(String visionKey) {
-		this.visionKey = visionKey;
+	public void setCredentialsPath(String credentialsPath) {
+		this.credentialsPath = credentialsPath;
 	}
 
 }

@@ -4,6 +4,9 @@ server:
      enabled: true
      mime-types: text/html,text/xml,text/plain,text/css,application/json,application/javascript,image/svg+xml,application/x-font-ttf,application/x-font-truetype,application/x-font-opentype,application/vnd.ms-fontobject,application/font-sfnt  
 
+app:
+  credentials-path: D:/ws/ext/vision/visiondemo.json
+
 mongodb:
   uri: mongodb://localhost/vision
 
