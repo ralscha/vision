@@ -1,13 +1,23 @@
 {
-    /**
-     * The application's namespace.
-     */
     "name": "Vision",
+    "namespace": "Vision",
+    "version": "1.0.0.0",
+    "framework": "ext",
+    "toolkit": "classic",
+    "theme": "theme-triton",
     
     /**
-     * The version of the application.
+     * The list of required packages (with optional versions; default is "latest").
+     *
+     * For example,
+     *
+     *      "requires": [
+     *          "charts"
+     *      ]
      */
-    "version": "1.0.0.0",
+    "requires": [
+        "font-awesome"
+    ],
 
     /**
      * The relative path to the application's markup file (html, jsp, asp, etc.).
@@ -36,42 +46,10 @@
     ],
 
     /**
-     * The Sencha Framework for this application: "ext" or "touch".
-     */
-    "framework": "ext",
-    
-    
-    /**
-     * The toolkit to use. Select either "classic" or "modern".
-     */
-    "toolkit": "classic",
-    
-    
-    
-    /**
-     * The name of the theme for this application.
-     */
-    
-    "theme": "theme-triton",
-    
-    
-    /**
-     * The list of required packages (with optional versions; default is "latest").
-     *
-     * For example,
-     *
-     *      "requires": [
-     *          "charts"
-     *      ]
-     */
-    "requires": [
-        "font-awesome"
-    ],
-
-    /**
      * Fashion build configuration properties.
      */
     "fashion": {
+        "missingParameters": "error",
         "inliner": {
             /**
              * Disable resource inliner. Production builds enable this by default.
@@ -113,7 +91,6 @@
             "var": "sass/save.scss",
             "src": "sass/save"
         },
-        
         
         /**
          * Comma-separated list of files or folders containing extra Sass. These
@@ -234,7 +211,7 @@
 			"includeInBundle": true
         },
         {
-        	"path": "resources/eventsource.min.js",
+        	"path": "eventsource.min.js",
 			"includeInBundle": true
         },        
       	{
@@ -246,8 +223,6 @@
             "bundle": true
         }
     ],
-
-
 
     /**
      * List of all CSS assets in the right inclusion order.
@@ -352,7 +327,7 @@
      * form:
      *
      *      "bootstrap": {
-     *          "base": "${app.dir},
+     *          "base": "${app.dir}",
      *          "manifest": "bootstrap.json",
      *          "microloader": "bootstrap.js",
      *          "css": "bootstrap.css"
@@ -391,7 +366,12 @@
      *              "enable": false
      *          },
      *          "css": "${app.output.resources}/${app.name}-all.css",
-     *          "js": "app.js",
+     *          "js": {
+     *              "path": "app.js",
+     *              // This setting constrols the output language level.  Set to 'ES6' to 
+     *              // disable the transpiler
+     *              "version": "ES5"
+     *          },
      *          "microloader": {
      *              "path": "microloader.js",
      *              "embed": true,
@@ -424,7 +404,6 @@
         }
     },
     
-    
     /**
     * Controls for localStorage caching
     *   "cache": {
@@ -446,7 +425,6 @@
         "deltas": true
     },
     
-
     /**
      * Used to automatically generate cache.manifest (HTML 5 application cache manifest)
      * file when you build.
@@ -489,8 +467,6 @@
     
     "archivePath": "archive",
     
-
-
     /**
      * Additional resources used during theme slicing operations
      */
@@ -511,7 +487,6 @@
         }
     },
 
-
     /**
      * Build Profiles. This object's properties are each a "build profile". You can
      * add as many as you need to produce optimized builds for devices, themes, locales
@@ -521,7 +496,6 @@
      *
      */
     
-
     /**
      * File / directory name patttern to ignore when copying to the builds. Must be a
      * valid regular expression.
@@ -534,5 +508,5 @@
      * Uniquely generated id for this application, used as prefix for localStorage keys.
      * Normally you should never change this value.
      */
-    "id": "4d30f96e-a2aa-4adf-b9ca-df5edbfd142f"
+    "id": "ba3b5c64-b3b2-419f-a3d6-ed9b1f2e4540"
 }

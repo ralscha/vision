@@ -1,10 +1,10 @@
 Ext.application({
-    name: 'Vision',
-
     extend: 'Vision.Application',
 
+    name: 'Vision',
+
     requires: [
-        'Vision.view.image.Image'
+        'Vision.*'
     ],
     mainView: 'Vision.view.image.Image'
 });
