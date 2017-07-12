@@ -105,7 +105,9 @@ public class ImageController {
 			response.setHeader(HttpHeaders.CACHE_CONTROL, "public, max-age=31536000");
 
 			response.setContentType(image.getType());
-			response.setContentLengthLong(image.getSize());
+			if (image.getSize() > 0) {
+				response.setContentLengthLong(image.getSize());
+			}
 
 			GridFSBucket bucket = this.mongoDb.createBucket("image");
 			@SuppressWarnings("resource")
