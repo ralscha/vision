@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      Vision Demo Camera
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-card>
+    <ion-card-content>
+      Take a picture and upload it to the vision demo application
+      <br>
+      <button ion-button (click)="takePicture()">Take a Picture</button>
+      <button ion-button (click)="upload()" [disabled]="imageUploaded">Upload</button>
+      <img [src]="imageSrc" *ngIf="imageSrc"/>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
