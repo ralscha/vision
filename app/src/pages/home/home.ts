@@ -12,7 +12,7 @@ export class HomePage {
   imageUploaded: boolean = true;
   private loading: Loading;
 
-  constructor(private readonly loadingCtrl: LoadingController,
+  constructor(loadingCtrl: LoadingController,
               private readonly toastCtrl: ToastController,
               private readonly camera: Camera,
               private readonly transfer: FileTransfer) {
