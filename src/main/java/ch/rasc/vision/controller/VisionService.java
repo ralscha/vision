@@ -58,7 +58,7 @@ public class VisionService {
 	public VisionResult vision(String base64data) throws IOException, Exception {
 		ServiceAccountCredentials credentials = ServiceAccountCredentials.fromStream(
 				Files.newInputStream(Paths.get(this.appConfig.getCredentialsPath())));
-		ImageAnnotatorSettings settings = ImageAnnotatorSettings.defaultBuilder()
+		ImageAnnotatorSettings settings = ImageAnnotatorSettings.newBuilder()
 				.setCredentialsProvider(FixedCredentialsProvider.create(credentials))
 				.build();
 		try (ImageAnnotatorClient vision = ImageAnnotatorClient.create(settings)) {
