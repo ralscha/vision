@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
-			<version>3.6.0-rc1</version>
+			<version>3.6.0</version>
 		</dependency>
 
 		<dependency>
@@ -57,36 +57,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-configuration-processor</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
 			<groupId>ch.rasc</groupId>
-			<artifactId>constgen</artifactId>
-			<version>1.0.3</version>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>ch.rasc</groupId>
-			<artifactId>bsoncodec</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.immutables</groupId>
-			<artifactId>value</artifactId>
-			<version>2.6.0.alpha0</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>ch.rasc</groupId>
-			<artifactId>bsoncodec-apt</artifactId>
-			<version>1.0.4</version>
-			<optional>true</optional>
+			<artifactId>bsoncodec-annotations</artifactId>
+			<version>1.0.5</version>
 		</dependency>
 
 		<dependency>
@@ -106,6 +79,13 @@
 	        <artifactId>sse-eventbus</artifactId>
 	        <version>1.1.3</version>
 	    </dependency>
+	    
+		<dependency>
+			<groupId>org.immutables</groupId>
+			<artifactId>value</artifactId>
+			<version>2.5.6</version>
+			<scope>provided</scope>
+		</dependency>	    
 		
 	</dependencies>
 	
@@ -120,32 +100,8 @@
 				<configuration>
 					<excludes>
 						<exclude>
-							<groupId>ch.rasc</groupId>
-							<artifactId>constgen</artifactId>
-						</exclude>
-						<exclude>
-							<groupId>ch.rasc</groupId>
-							<artifactId>bsoncodec-apt</artifactId>
-						</exclude>
-						<exclude>
-							<groupId>com.squareup</groupId>
-							<artifactId>javapoet</artifactId>
-						</exclude>
-						<exclude>
-							<groupId>com.google.auto</groupId>
-							<artifactId>auto-common</artifactId>
-						</exclude>
-						<exclude>
-							<groupId>com.google.auto.service</groupId>
-							<artifactId>auto-service</artifactId>
-						</exclude>
-						<exclude>
 							<groupId>org.immutables</groupId>
 							<artifactId>value</artifactId>
-						</exclude>
-						<exclude>
-							<groupId>com.google.code.findbugs</groupId>
-							<artifactId>jsr305</artifactId>
 						</exclude>
 					</excludes>
 				</configuration>
@@ -163,6 +119,28 @@
 					<compilerArgs>
 						<compilerArg>-AgenerateCodecProvider=false</compilerArg>
 					</compilerArgs>
+					<annotationProcessorPaths>					
+						<path>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-configuration-processor</artifactId>
+							<version>1.5.9.RELEASE</version>
+						</path>
+						<path>
+							<groupId>ch.rasc</groupId>
+							<artifactId>constgen</artifactId>
+							<version>1.0.3</version>
+						</path>
+						<path>
+							<groupId>ch.rasc</groupId>
+							<artifactId>bsoncodec-apt</artifactId>
+							<version>1.0.5</version>
+						</path>
+						<path>
+							<groupId>org.immutables</groupId>
+							<artifactId>value</artifactId>
+							<version>2.5.6</version>
+						</path>							
+					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
 
