@@ -1,5 +1,7 @@
 package ch.rasc.vision.controller;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +19,9 @@ public class EventBusController {
 	}
 
 	@GetMapping("/eventbus/{id}")
-	public SseEmitter eventbus(@PathVariable("id") String id) {
+	public SseEmitter eventbus(@PathVariable("id") String id,
+			HttpServletResponse response) {
+		response.setHeader("Cache-Control", "no-store");
 		return this.eventBus.createSseEmitter(id, "imageadded");
 	}
 
