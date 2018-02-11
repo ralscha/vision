@@ -2,9 +2,6 @@ package ch.rasc.vision.entity;
 
 import com.google.cloud.vision.v1.Likelihood;
 
-import ch.rasc.bsoncodec.annotation.BsonDocument;
-
-@BsonDocument
 public class SafeSearch {
 
 	private Likelihood adult;

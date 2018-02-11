@@ -2,29 +2,20 @@ package ch.rasc.vision.entity;
 
 import java.util.List;
 
-import org.bson.types.ObjectId;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import ch.rasc.bsoncodec.annotation.BsonDocument;
-import ch.rasc.bsoncodec.annotation.Id;
-import ch.rasc.bsoncodec.annotation.Transient;
 import ch.rasc.extclassgenerator.Model;
 import ch.rasc.extclassgenerator.ModelField;
 
-@BsonDocument
 @Model(value = "Vision.model.Image", readMethod = "imageController.read",
 		createMethod = "imageController.update", updateMethod = "imageController.update",
-		rootProperty = "records", identifier = "uuid", extend = "Vision.model.Base",
+		rootProperty = "records", identifier = "negative", extend = "Vision.model.Base",
 		hasMany = { "Label", "Logo", "Landmark", "Text", "Face" }, writeAllFields = false)
 @JsonInclude(Include.NON_NULL)
 public class Image {
 
-	@ModelField(useNull = true, convert = "null")
-	@Id(generator = UUIDStringGenerator.class)
-	private String id;
+	private long id;
 
 	private String name;
 
@@ -49,17 +40,13 @@ public class Image {
 	@ModelField(persist = false)
 	private String thumbnail;
 
-	@Transient
 	private String data;
 
-	@JsonIgnore
-	private ObjectId fileId;
-
-	public String getId() {
+	public long getId() {
 		return this.id;
 	}
 
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -93,14 +80,6 @@ public class Image {
 
 	public void setSize(long size) {
 		this.size = size;
-	}
-
-	public ObjectId getFileId() {
-		return this.fileId;
-	}
-
-	public void setFileId(ObjectId fileId) {
-		this.fileId = fileId;
 	}
 
 	public String getData() {

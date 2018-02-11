@@ -14,6 +14,7 @@ Ext.define('Vision.view.image.Image', {
 
 	items: [ {
 		xclass: 'Vision.view.image.ImageGrid',
+		reference: 'grid',
 		flex: 1,
 		height: '100%',
 		padding: 10

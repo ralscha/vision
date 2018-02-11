@@ -4,10 +4,8 @@ import java.util.List;
 
 import com.google.cloud.vision.v1.Likelihood;
 
-import ch.rasc.bsoncodec.annotation.BsonDocument;
 import ch.rasc.extclassgenerator.Model;
 
-@BsonDocument
 @Model(value = "Vision.model.Face", extend = "Vision.model.Base")
 public class Face {
 

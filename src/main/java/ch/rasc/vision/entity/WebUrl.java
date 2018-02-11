@@ -1,8 +1,5 @@
 package ch.rasc.vision.entity;
 
-import ch.rasc.bsoncodec.annotation.BsonDocument;
-
-@BsonDocument
 public class WebUrl {
 	private String url;
 	private float score;

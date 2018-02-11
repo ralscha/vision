@@ -1,9 +1,7 @@
 package ch.rasc.vision.entity;
 
-import ch.rasc.bsoncodec.annotation.BsonDocument;
 import ch.rasc.extclassgenerator.Model;
 
-@BsonDocument
 @Model(value = "Vision.model.Label", extend = "Vision.model.Base")
 public class Label {
 

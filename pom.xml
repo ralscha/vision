@@ -33,9 +33,21 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongo-java-driver</artifactId>
-			<version>3.6.2</version>
+			<groupId>org.jetbrains.xodus</groupId>
+			<artifactId>xodus-vfs</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jetbrains.xodus</groupId>
+			<artifactId>xodus-entity-store</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+	    <dependency>
+			<groupId>com.esotericsoftware</groupId>
+			<artifactId>kryo</artifactId>
+			<version>4.0.1</version>
 		</dependency>
 
 		<dependency>
@@ -57,12 +69,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>ch.rasc</groupId>
-			<artifactId>bsoncodec-annotations</artifactId>
-			<version>1.0.5</version>
-		</dependency>
-
-		<dependency>
 			<groupId>com.google.cloud</groupId>
 			<artifactId>google-cloud-vision</artifactId>
 			<version>1.16.0</version>
@@ -78,13 +84,6 @@
 			<groupId>ch.rasc</groupId>
 			<artifactId>sse-eventbus</artifactId>
 			<version>1.1.5</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.immutables</groupId>
-			<artifactId>value</artifactId>
-			<version>2.5.6</version>
-			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>
@@ -117,29 +116,11 @@
 					<source>${java.version}</source>
 					<target>${java.version}</target>
 					<parameters>true</parameters>
-					<compilerArgs>
-						<compilerArg>-AgenerateCodecProvider=false</compilerArg>
-					</compilerArgs>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.springframework.boot</groupId>
 							<artifactId>spring-boot-configuration-processor</artifactId>
 							<version>1.5.10.RELEASE</version>
-						</path>
-						<path>
-							<groupId>ch.rasc</groupId>
-							<artifactId>constgen</artifactId>
-							<version>1.0.3</version>
-						</path>
-						<path>
-							<groupId>ch.rasc</groupId>
-							<artifactId>bsoncodec-apt</artifactId>
-							<version>1.0.5</version>
-						</path>
-						<path>
-							<groupId>org.immutables</groupId>
-							<artifactId>value</artifactId>
-							<version>2.5.6</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>

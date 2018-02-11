@@ -3,27 +3,23 @@ package ch.rasc.vision.controller;
 import static ch.ralscha.extdirectspring.annotation.ExtDirectMethodType.STORE_MODIFY;
 import static ch.ralscha.extdirectspring.annotation.ExtDirectMethodType.STORE_READ;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Validator;
 
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,35 +28,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.gridfs.GridFSBucket;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.FindOneAndUpdateOptions;
-import com.mongodb.client.model.Projections;
-import com.mongodb.client.model.ReturnDocument;
-import com.mongodb.client.model.Sorts;
-import com.mongodb.client.model.Updates;
-
 import ch.ralscha.extdirectspring.annotation.ExtDirectMethod;
-import ch.ralscha.extdirectspring.bean.ExtDirectStoreReadRequest;
 import ch.ralscha.extdirectspring.bean.ExtDirectStoreResult;
 import ch.rasc.sse.eventbus.SseEvent;
 import ch.rasc.vision.Application;
-import ch.rasc.vision.config.MongoDb;
 import ch.rasc.vision.dto.VisionResult;
-import ch.rasc.vision.entity.CImage;
 import ch.rasc.vision.entity.Image;
-import ch.rasc.vision.util.QueryUtil;
+import ch.rasc.vision.util.ExodusManager;
 import ch.rasc.vision.util.ValidationMessages;
 import ch.rasc.vision.util.ValidationMessagesResult;
 import ch.rasc.vision.util.ValidationUtil;
-import net.coobird.thumbnailator.Thumbnails;
 
 @RestController
 public class ImageController {
-
-	private final MongoDb mongoDb;
 
 	private final VisionService visionService;
 
@@ -68,63 +48,44 @@ public class ImageController {
 
 	private final ApplicationEventPublisher publisher;
 
-	private final ObjectMapper objectMapper;
+	private final ExodusManager exodusManager;
 
-	public ImageController(MongoDb mongoDb, VisionService visionService,
-			Validator validator, ApplicationEventPublisher publisher,
-			ObjectMapper objectMapper) {
-		this.mongoDb = mongoDb;
+	public ImageController(VisionService visionService, Validator validator,
+			ApplicationEventPublisher publisher, ExodusManager exodusManager) {
 		this.visionService = visionService;
 		this.validator = validator;
 		this.publisher = publisher;
-		this.objectMapper = objectMapper;
+		this.exodusManager = exodusManager;
 	}
 
-	@GetMapping("/image/{id}/{filename:.+}")
-	public void downloadImage(HttpServletRequest request, @PathVariable("id") String id,
-			@SuppressWarnings("unused") @PathVariable("filename") String filename,
-			HttpServletResponse response) throws IOException {
+	@GetMapping("/image/{id}")
+	public ResponseEntity<byte[]> downloadImage(HttpServletRequest request,
+			@PathVariable("id") long id) {
 
-		Image image = this.mongoDb.findFirst(Image.class, CImage.id, id);
-
-		if (image != null && image.getFileId() != null) {
-			Document filesDoc = this.mongoDb.getCollection("image.files")
-					.find(Filters.eq("_id", image.getFileId()))
-					.projection(Projections.fields(Projections.exclude("_id"),
-							Projections.include("md5")))
-					.first();
-			String md5 = "\"" + filesDoc.getString("md5") + "\"";
+		Image image = this.exodusManager.findImage(id);
+		if (image != null) {
+			byte[] imageBlob = this.exodusManager.getImageBlob(id);
+			String md5 = "\"" + DigestUtils.md5DigestAsHex(imageBlob) + "\"";
 
 			String requestETag = request.getHeader(HttpHeaders.IF_NONE_MATCH);
 			if (md5.equals(requestETag)) {
-				response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-				return;
+				return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
 			}
 
-			response.setHeader(HttpHeaders.ETAG, md5);
-			response.setHeader(HttpHeaders.CACHE_CONTROL, "public, max-age=31536000");
-
-			response.setContentType(image.getType());
-			if (image.getSize() > 0) {
-				response.setContentLengthLong(image.getSize());
-			}
-
-			GridFSBucket bucket = this.mongoDb.createBucket("image");
-			@SuppressWarnings("resource")
-			ServletOutputStream out = response.getOutputStream();
-			bucket.downloadToStream(image.getFileId(), out);
-			out.flush();
+			return ResponseEntity.ok().eTag(md5)
+					.cacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic())
+					.contentType(MediaType.parseMediaType(image.getType()))
+					.contentLength(image.getSize()).body(imageBlob);
 		}
+
+		return ResponseEntity.notFound().build();
+
 	}
 
 	@ExtDirectMethod(STORE_READ)
-	public ExtDirectStoreResult<Image> read(ExtDirectStoreReadRequest request) {
-
-		FindIterable<Image> find = this.mongoDb.getCollection(Image.class).find();
-		find.sort(Sorts.orderBy(QueryUtil.getSorts(request)));
-
-		List<Image> list = QueryUtil.toList(find);
-		return new ExtDirectStoreResult<>(list.size(), list);
+	public ExtDirectStoreResult<Image> read() {
+		List<Image> results = this.exodusManager.readAll();
+		return new ExtDirectStoreResult<>(results.size(), results);
 	}
 
 	@PostMapping("/pictureupload")
@@ -133,18 +94,15 @@ public class ImageController {
 			throws IOException {
 
 		Image image = new Image();
-		image.setId(UUID.randomUUID().toString());
+		image.setId(-1L);
 		image.setData("data:" + file.getContentType() + ";base64,"
 				+ Base64.getEncoder().encodeToString(file.getBytes()));
 		image.setName(file.getName());
 		image.setSize(file.getSize());
 		image.setType(file.getContentType());
 
-		ValidationMessagesResult<Image> result = update(image);
-
-		String json = this.objectMapper
-				.writeValueAsString(result.getRecords().iterator().next());
-		this.publisher.publishEvent(SseEvent.of("imageadded", json));
+		update(image);
+		this.publisher.publishEvent(SseEvent.ofEvent("imageadded"));
 	}
 
 	@ExtDirectMethod(STORE_MODIFY)
@@ -157,130 +115,31 @@ public class ImageController {
 			String data = updatedEntity.getData();
 			if (StringUtils.hasText(data) && data.startsWith("data:")) {
 
-				List<Bson> updates = new ArrayList<>();
-				updates.add(Updates.set(CImage.name, updatedEntity.getName()));
-				updates.add(Updates.set(CImage.size, updatedEntity.getSize()));
-				updates.add(Updates.set(CImage.type, updatedEntity.getType()));
+				if (updatedEntity.getId() >= 0) {
+					this.exodusManager.deleteImage(updatedEntity.getId());
+				}
 
-				Image updatedImage = this.mongoDb.getCollection(Image.class)
-						.findOneAndUpdate(Filters.eq(CImage.id, updatedEntity.getId()),
-								Updates.combine(updates),
-								new FindOneAndUpdateOptions()
-										.returnDocument(ReturnDocument.BEFORE)
-										.upsert(true));
-
-				int pos = data.indexOf("base64,");
-				if (pos != -1) {
-
-					List<Bson> addUpdates = new ArrayList<>();
-
-					GridFSBucket bucket = this.mongoDb.createBucket("image");
-					if (updatedImage != null && updatedImage.getFileId() != null) {
-						bucket.delete(updatedImage.getFileId());
-					}
+				try {
+					int pos = data.indexOf("base64,");
 					String extract = data.substring(pos + 7);
-					byte[] bytes = Base64.getDecoder().decode(extract);
 
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					InputStream stream = new ByteArrayInputStream(bytes);
-					try {
-						Thumbnails.of(stream).width(50).outputFormat("jpg")
-								.toOutputStream(baos);
-						String thumbnailData = Base64.getEncoder()
-								.encodeToString(baos.toByteArray());
-
-						addUpdates.add(Updates.set(CImage.thumbnail,
-								"data:image/jpeg;base64," + thumbnailData));
-					}
-					catch (Exception e) {
-						Application.logger.error("uploaded", e);
-					}
-
-					try (ByteArrayInputStream source = new ByteArrayInputStream(bytes)) {
-						ObjectId fileId = bucket.uploadFromStream(updatedEntity.getId(),
-								source);
-						addUpdates.add(Updates.set(CImage.fileId, fileId));
-					}
-					catch (IOException e) {
-						Application.logger.error("upload document", e);
-					}
-
-					try {
-						VisionResult result = this.visionService.vision(extract);
-						if (result.labels() != null) {
-							addUpdates.add(Updates.set(CImage.labels, result.labels()));
-						}
-						else {
-							addUpdates.add(
-									Updates.set(CImage.labels, Collections.emptyList()));
-						}
-
-						if (result.safeSearch() != null) {
-							addUpdates.add(
-									Updates.set(CImage.safeSearch, result.safeSearch()));
-						}
-
-						if (result.logos() != null) {
-							addUpdates.add(Updates.set(CImage.logos, result.logos()));
-						}
-						else {
-							addUpdates.add(
-									Updates.set(CImage.logos, Collections.emptyList()));
-						}
-
-						if (result.landmarks() != null) {
-							addUpdates.add(
-									Updates.set(CImage.landmarks, result.landmarks()));
-						}
-						else {
-							addUpdates.add(Updates.set(CImage.landmarks,
-									Collections.emptyList()));
-						}
-
-						if (result.texts() != null) {
-							addUpdates.add(Updates.set(CImage.texts, result.texts()));
-						}
-						else {
-							addUpdates.add(
-									Updates.set(CImage.texts, Collections.emptyList()));
-						}
-
-						if (result.faces() != null) {
-							addUpdates.add(Updates.set(CImage.faces, result.faces()));
-						}
-						else {
-							addUpdates.add(
-									Updates.set(CImage.faces, Collections.emptyList()));
-						}
-
-						if (result.web() != null) {
-							addUpdates.add(Updates.set(CImage.web, result.web()));
-						}
-
-					}
-					catch (Exception e) {
-						Application.logger.error("vision", e);
-					}
-
-					if (!addUpdates.isEmpty()) {
-						this.mongoDb.getCollection(Image.class).findOneAndUpdate(
-								Filters.eq(CImage.id, updatedEntity.getId()),
-								Updates.combine(addUpdates));
-					}
-
+					VisionResult result = this.visionService.vision(extract);
+					updatedEntity.setLabels(result.getLabels());
+					updatedEntity.setSafeSearch(result.getSafeSearch());
+					updatedEntity.setLogos(result.getLogos());
+					updatedEntity.setLandmarks(result.getLandmarks());
+					updatedEntity.setTexts(result.getTexts());
+					updatedEntity.setFaces(result.getFaces());
+					updatedEntity.setWeb(result.getWeb());
 				}
-			}
-			else {
-				// just update the name
-				if (StringUtils.hasText(updatedEntity.getName())) {
-					this.mongoDb.getCollection(Image.class).updateOne(
-							Filters.eq(CImage.id, updatedEntity.getId()),
-							Updates.set(CImage.name, updatedEntity.getName()));
+				catch (Exception e) {
+					Application.logger.error("vision", e);
 				}
-			}
 
-			return new ValidationMessagesResult<>(this.mongoDb.findFirst(Image.class,
-					CImage.id, updatedEntity.getId()));
+				Image image = this.exodusManager.insertImage(updatedEntity);
+				image.setData(null);
+				return new ValidationMessagesResult<>(image);
+			}
 		}
 
 		ValidationMessagesResult<Image> result = new ValidationMessagesResult<>(
@@ -290,15 +149,8 @@ public class ImageController {
 	}
 
 	@ExtDirectMethod
-	public boolean destroy(String id) {
-		Image doc = this.mongoDb.getCollection(Image.class)
-				.findOneAndDelete(Filters.eq(CImage.id, id));
-
-		if (doc != null && doc.getFileId() != null) {
-			GridFSBucket bucket = this.mongoDb.createBucket("image");
-			bucket.delete(doc.getFileId());
-		}
-
+	public boolean destroy(long id) {
+		this.exodusManager.deleteImage(id);
 		return true;
 	}
 

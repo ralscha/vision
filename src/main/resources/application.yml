@@ -6,9 +6,7 @@ server:
 
 app:
   credentials-path: D:/ws/ext/vision/visiondemo.json
-
-mongodb:
-  uri: mongodb://localhost/vision
+  xodus-path: ./db
 
 spring:
   resources:

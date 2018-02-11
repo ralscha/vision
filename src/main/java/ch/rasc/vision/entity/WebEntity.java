@@ -1,8 +1,5 @@
 package ch.rasc.vision.entity;
 
-import ch.rasc.bsoncodec.annotation.BsonDocument;
-
-@BsonDocument
 public class WebEntity {
 	private String entityId;
 	private Float score;

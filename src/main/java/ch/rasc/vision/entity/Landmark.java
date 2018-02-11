@@ -2,10 +2,8 @@ package ch.rasc.vision.entity;
 
 import java.util.List;
 
-import ch.rasc.bsoncodec.annotation.BsonDocument;
 import ch.rasc.extclassgenerator.Model;
 
-@BsonDocument
 @Model(value = "Vision.model.Landmark", extend = "Vision.model.Base")
 public class Landmark {
 

@@ -1,8 +1,5 @@
 package ch.rasc.vision.entity;
 
-import ch.rasc.bsoncodec.annotation.BsonDocument;
-
-@BsonDocument
 public class Vertex {
 	private Integer x;
 	private Integer y;

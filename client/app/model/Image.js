@@ -1,13 +1,11 @@
 Ext.define("Vision.model.Image",
 {
   extend : "Vision.model.Base",
-  requires : [ "Ext.data.proxy.Direct", "Ext.data.identifier.Uuid" ],
-  identifier : "uuid",
+  requires : [ "Ext.data.proxy.Direct", "Ext.data.identifier.Negative" ],
+  identifier : "negative",
   fields : [ {
     name : "id",
-    type : "string",
-    allowNull : true,
-    convert : null
+    type : "integer"
   }, {
     name : "name",
     type : "string"

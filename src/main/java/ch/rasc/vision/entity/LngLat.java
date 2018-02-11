@@ -1,8 +1,5 @@
 package ch.rasc.vision.entity;
 
-import ch.rasc.bsoncodec.annotation.BsonDocument;
-
-@BsonDocument
 public class LngLat {
 	private double lng;
 	private double lat;

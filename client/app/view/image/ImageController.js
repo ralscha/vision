@@ -33,7 +33,7 @@ Ext.define('Vision.view.image.ImageController', {
 
 	onSelectionChange: function(grid, selected) {
 		if (selected && selected.length > 0) {
-			var record = selected[0];
+			var record = selected[selected.length-1];
 
 			var gmap = this.lookup('googleMap');
 			gmap.deleteMarkers();
@@ -49,7 +49,7 @@ Ext.define('Vision.view.image.ImageController', {
 				var canvas = this.getCanvas();
 
 				var img = new Image();
-				img.src = 'image/' + record.getId() + '/' + record.get('name');
+				img.src = 'image/' + record.getId();
 				img.onload = this.drawImageScaled.bind(this, img);
 			}
 
@@ -58,7 +58,7 @@ Ext.define('Vision.view.image.ImageController', {
 		}
 	},
 
-	onImageChange: function(tf) {		
+	onImageChange: function(tf) {
 		var newImage = new Vision.model.Image();
 		this.getViewModel().set('selectedImage', newImage);
 		this.clearImage();
@@ -206,8 +206,6 @@ Ext.define('Vision.view.image.ImageController', {
 			this.ratio = 1;
 		}
 
-		// var centerShift_x = (canvas.width - img.width * this.ratio) / 2;
-		// var centerShift_y = (canvas.height - img.height * this.ratio) / 2;
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.drawImage(img, 0, 0, img.width, img.height, 0/* centerShift_x */, 0/* centerShift_y */, img.width
 				* this.ratio, img.height * this.ratio);
@@ -234,12 +232,11 @@ Ext.define('Vision.view.image.ImageController', {
 		var image = this.getViewModel().get('selectedImage');
 		this.getView().mask('Uploading to the Server...');
 		image.save({
-			success: function(record) {
-				this.getStore('images').add(record);
-
+			success: record => {
+				this.getStore('images').add(record);				
 				this.updateStores(record);
 			},
-			callback: function(record, operation, success) {
+			callback: (record, operation, success) => {
 				this.getView().unmask();
 			},
 			scope: this

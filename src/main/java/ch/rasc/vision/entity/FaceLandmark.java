@@ -1,8 +1,5 @@
 package ch.rasc.vision.entity;
 
-import ch.rasc.bsoncodec.annotation.BsonDocument;
-
-@BsonDocument
 public class FaceLandmark {
 	private com.google.cloud.vision.v1.FaceAnnotation.Landmark.Type type;
 	private float x;

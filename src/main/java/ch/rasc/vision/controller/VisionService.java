@@ -31,8 +31,6 @@ import com.google.cloud.vision.v1.WebDetection.WebPage;
 import com.google.protobuf.ByteString;
 
 import ch.rasc.vision.config.AppConfig;
-import ch.rasc.vision.dto.ImmutableVisionResult;
-import ch.rasc.vision.dto.ImmutableVisionResult.Builder;
 import ch.rasc.vision.dto.VisionResult;
 import ch.rasc.vision.entity.Face;
 import ch.rasc.vision.entity.FaceLandmark;
@@ -91,19 +89,22 @@ public class VisionService {
 			// Performs label detection on the image file
 			BatchAnnotateImagesResponse response = vision.batchAnnotateImages(requests);
 			List<AnnotateImageResponse> responses = response.getResponsesList();
-			Builder builder = ImmutableVisionResult.builder();
+			VisionResult result = new VisionResult();
 			if (responses != null) {
 
 				for (AnnotateImageResponse resp : responses) {
 					if (resp.getLabelAnnotationsList() != null) {
+						List<Label> labels = new ArrayList<>();
 						for (EntityAnnotation ea : resp.getLabelAnnotationsList()) {
 							Label l = new Label();
 							l.setScore(ea.getScore());
 							l.setDescription(ea.getDescription());
-							builder.addLabels(l);
+							labels.add(l);
 						}
+						result.setLabels(labels);
 					}
 					if (resp.getLandmarkAnnotationsList() != null) {
+						List<Landmark> landmarks = new ArrayList<>();
 						for (EntityAnnotation ea : resp.getLandmarkAnnotationsList()) {
 							Landmark l = new Landmark();
 							l.setScore(ea.getScore());
@@ -126,11 +127,12 @@ public class VisionService {
 									return ll;
 								}).collect(Collectors.toList()));
 							}
-
-							builder.addLandmarks(l);
+							landmarks.add(l);
 						}
+						result.setLandmarks(landmarks);
 					}
 					if (resp.getLogoAnnotationsList() != null) {
+						List<Logo> logos = new ArrayList<>();
 						for (EntityAnnotation ea : resp.getLogoAnnotationsList()) {
 							Logo l = new Logo();
 							l.setScore(ea.getScore());
@@ -145,11 +147,12 @@ public class VisionService {
 											return vertex;
 										}).collect(Collectors.toList()));
 							}
-
-							builder.addLogos(l);
+							logos.add(l);
 						}
+						result.setLogos(logos);
 					}
 					if (resp.getTextAnnotationsList() != null) {
+						List<Text> texts = new ArrayList<>();
 						for (EntityAnnotation ea : resp.getTextAnnotationsList()) {
 							Text t = new Text();
 							t.setDescription(ea.getDescription());
@@ -164,10 +167,12 @@ public class VisionService {
 										}).collect(Collectors.toList()));
 							}
 
-							builder.addTexts(t);
+							texts.add(t);
 						}
+						result.setTexts(texts);
 					}
 					if (resp.getFaceAnnotationsList() != null) {
+						List<Face> faces = new ArrayList<>();
 						for (FaceAnnotation fa : resp.getFaceAnnotationsList()) {
 							Face face = new Face();
 							face.setRollAngle(fa.getRollAngle());
@@ -235,8 +240,9 @@ public class VisionService {
 										}).collect(Collectors.toList()));
 							}
 
-							builder.addFaces(face);
+							faces.add(face);
 						}
+						result.setFaces(faces);
 					}
 					SafeSearchAnnotation safeSearchAnnotation = resp
 							.getSafeSearchAnnotation();
@@ -255,7 +261,7 @@ public class VisionService {
 						safeSearch.setViolenceRating(
 								likelihoodToNumber(safeSearchAnnotation.getViolence()));
 
-						builder.safeSearch(safeSearch);
+						result.setSafeSearch(safeSearch);
 					}
 
 					WebDetection webDetection = resp.getWebDetection();
@@ -310,12 +316,12 @@ public class VisionService {
 							}).collect(Collectors.toList()));
 						}
 
-						builder.web(web);
+						result.setWeb(web);
 					}
 				}
 			}
 
-			return builder.build();
+			return result;
 		}
 	}
 
