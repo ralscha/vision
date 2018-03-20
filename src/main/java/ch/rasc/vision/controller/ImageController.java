@@ -64,6 +64,7 @@ public class ImageController {
 	@GetMapping("/thumbnail/{id}")
 	public void downloadThumbnail(HttpServletResponse response,
 			@PathVariable("id") long id) throws IOException {
+		response.setContentType("image/jpeg");
 		@SuppressWarnings("resource")
 		ServletOutputStream outputStream = response.getOutputStream();
 		this.exodusManager.writeThumbnailBlob(id, outputStream);
