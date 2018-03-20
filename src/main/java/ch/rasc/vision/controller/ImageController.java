@@ -7,19 +7,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Validator;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.CacheControl;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,27 +53,21 @@ public class ImageController {
 	}
 
 	@GetMapping("/image/{id}")
-	public ResponseEntity<byte[]> downloadImage(HttpServletRequest request,
-			@PathVariable("id") long id) {
-
-		Image image = this.exodusManager.findImage(id);
-		if (image != null) {
-			byte[] imageBlob = this.exodusManager.getImageBlob(id);
-			String md5 = "\"" + DigestUtils.md5DigestAsHex(imageBlob) + "\"";
-
-			String requestETag = request.getHeader(HttpHeaders.IF_NONE_MATCH);
-			if (md5.equals(requestETag)) {
-				return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
-			}
-
-			return ResponseEntity.ok().eTag(md5)
-					.cacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic())
-					.contentType(MediaType.parseMediaType(image.getType()))
-					.contentLength(image.getSize()).body(imageBlob);
-		}
-
-		return ResponseEntity.notFound().build();
-
+	public void downloadImage(HttpServletResponse response,
+			@PathVariable("id") long id) throws IOException {
+		@SuppressWarnings("resource")
+		ServletOutputStream outputStream = response.getOutputStream();
+		this.exodusManager.writeImageBlob(id, outputStream);
+		outputStream.flush();
+	}
+	
+	@GetMapping("/thumbnail/{id}")
+	public void downloadThumbnail(HttpServletResponse response,
+			@PathVariable("id") long id) throws IOException {
+		@SuppressWarnings("resource")
+		ServletOutputStream outputStream = response.getOutputStream();
+		this.exodusManager.writeThumbnailBlob(id, outputStream);
+		outputStream.flush();
 	}
 
 	@ExtDirectMethod(STORE_READ)

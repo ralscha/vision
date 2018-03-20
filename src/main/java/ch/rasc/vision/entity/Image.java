@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import ch.rasc.extclassgenerator.Model;
-import ch.rasc.extclassgenerator.ModelField;
 
 @Model(value = "Vision.model.Image", readMethod = "imageController.read",
 		createMethod = "imageController.update", updateMethod = "imageController.update",
@@ -36,9 +35,6 @@ public class Image {
 	private String type;
 
 	private long size;
-
-	@ModelField(persist = false)
-	private String thumbnail;
 
 	private String data;
 
@@ -88,14 +84,6 @@ public class Image {
 
 	public void setData(String data) {
 		this.data = data;
-	}
-
-	public String getThumbnail() {
-		return this.thumbnail;
-	}
-
-	public void setThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail;
 	}
 
 	public SafeSearch getSafeSearch() {

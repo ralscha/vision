@@ -16,10 +16,6 @@ Ext.define("Vision.model.Image",
     name : "size",
     type : "integer"
   }, {
-    name : "thumbnail",
-    type : "string",
-    persist : false
-  }, {
     name : "data",
     type : "string"
   } ],

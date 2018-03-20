@@ -22,10 +22,10 @@ Ext.define('Vision.view.image.ImageGrid', {
 		menuDisabled: true,
 		flex: 1,
 		align: 'center',
-		dataIndex: 'thumbnail',
+		dataIndex: 'id',
 		renderer: function(value) {
-			if (value) {
-				return '<img src="' + value + '" width="50">';
+			if (value != null) {
+				return '<img src="thumbnail/' + value + '" width="50">';
 			}
 			return value;
 		}
