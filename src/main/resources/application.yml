@@ -10,9 +10,10 @@ app:
 
 spring:
   resources:
-    cache-period: 31556926
+    cache:
+      period: 31556926
 
-  http:
+  servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 20MB
