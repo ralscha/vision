@@ -210,10 +210,6 @@
         	"path": "api.js",
 			"includeInBundle": true
         },
-        {
-        	"path": "eventsource.min.js",
-			"includeInBundle": true
-        },        
       	{
         	"path": "https://maps.googleapis.com/maps/api/js?key=AIzaSyAZjJ216B4aJGdXTwXNevmXesob9RUSlPc",
 			"remote": true

@@ -69,7 +69,8 @@ public class ExodusManager {
 		ByteArrayOutputStream thumbnailBaos = new ByteArrayOutputStream();
 		InputStream stream = new ByteArrayInputStream(bytes);
 		try {
-			Thumbnails.of(stream).width(50).outputFormat("jpg").toOutputStream(thumbnailBaos);
+			Thumbnails.of(stream).width(50).outputFormat("jpg")
+					.toOutputStream(thumbnailBaos);
 		}
 		catch (Exception e) {
 			Application.logger.error("uploaded", e);
@@ -81,7 +82,8 @@ public class ExodusManager {
 			image.setId(id);
 			dp.setProperty("id", id);
 			dp.setBlob("image", new ByteArrayInputStream(bytes));
-			dp.setBlob("thumbnail",  new ByteArrayInputStream(thumbnailBaos.toByteArray()));
+			dp.setBlob("thumbnail",
+					new ByteArrayInputStream(thumbnailBaos.toByteArray()));
 
 			Kryo kryo = this.kryoPool.borrow();
 			try {
@@ -132,7 +134,7 @@ public class ExodusManager {
 			return null;
 		});
 	}
-	
+
 	public void writeThumbnailBlob(long id, OutputStream out) {
 		this.persistentEntityStore.executeInReadonlyTransaction(txn -> {
 			Entity entity = txn.find(IMAGE, "id", id).getFirst();

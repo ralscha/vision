@@ -5,26 +5,19 @@ import static ch.ralscha.extdirectspring.annotation.ExtDirectMethodType.STORE_RE
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Validator;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import ch.ralscha.extdirectspring.annotation.ExtDirectMethod;
 import ch.ralscha.extdirectspring.bean.ExtDirectStoreResult;
-import ch.rasc.sse.eventbus.SseEvent;
 import ch.rasc.vision.Application;
 import ch.rasc.vision.dto.VisionResult;
 import ch.rasc.vision.entity.Image;
@@ -40,27 +33,24 @@ public class ImageController {
 
 	private final Validator validator;
 
-	private final ApplicationEventPublisher publisher;
-
 	private final ExodusManager exodusManager;
 
 	public ImageController(VisionService visionService, Validator validator,
-			ApplicationEventPublisher publisher, ExodusManager exodusManager) {
+			ExodusManager exodusManager) {
 		this.visionService = visionService;
 		this.validator = validator;
-		this.publisher = publisher;
 		this.exodusManager = exodusManager;
 	}
 
 	@GetMapping("/image/{id}")
-	public void downloadImage(HttpServletResponse response,
-			@PathVariable("id") long id) throws IOException {
+	public void downloadImage(HttpServletResponse response, @PathVariable("id") long id)
+			throws IOException {
 		@SuppressWarnings("resource")
 		ServletOutputStream outputStream = response.getOutputStream();
 		this.exodusManager.writeImageBlob(id, outputStream);
 		outputStream.flush();
 	}
-	
+
 	@GetMapping("/thumbnail/{id}")
 	public void downloadThumbnail(HttpServletResponse response,
 			@PathVariable("id") long id) throws IOException {
@@ -75,23 +65,6 @@ public class ImageController {
 	public ExtDirectStoreResult<Image> read() {
 		List<Image> results = this.exodusManager.readAll();
 		return new ExtDirectStoreResult<>(results.size(), results);
-	}
-
-	@PostMapping("/pictureupload")
-	@Async
-	public void pictureupload(@RequestParam("file") MultipartFile file)
-			throws IOException {
-
-		Image image = new Image();
-		image.setId(-1L);
-		image.setData("data:" + file.getContentType() + ";base64,"
-				+ Base64.getEncoder().encodeToString(file.getBytes()));
-		image.setName(file.getName());
-		image.setSize(file.getSize());
-		image.setType(file.getContentType());
-
-		update(image);
-		this.publisher.publishEvent(SseEvent.ofEvent("imageadded"));
 	}
 
 	@ExtDirectMethod(STORE_MODIFY)

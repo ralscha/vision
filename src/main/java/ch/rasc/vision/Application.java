@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import ch.ralscha.extdirectspring.ExtDirectSpring;
 import ch.ralscha.extdirectspring.controller.ApiController;
-import ch.rasc.sse.eventbus.config.EnableSseEventBus;
 
 @Configuration
 @ComponentScan(basePackageClasses = { ExtDirectSpring.class, Application.class },
@@ -20,7 +19,6 @@ import ch.rasc.sse.eventbus.config.EnableSseEventBus;
 				value = ApiController.class) })
 @EnableAutoConfiguration(exclude = SpringDataWebAutoConfiguration.class)
 @EnableAsync
-@EnableSseEventBus
 public class Application {
 
 	public static final Logger logger = LoggerFactory.getLogger(Application.class);

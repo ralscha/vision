@@ -2,15 +2,7 @@ Ext.define('Vision.view.image.ImageController', {
 	extend: 'Ext.app.ViewController',
 
 	init: function() {
-		Vision.EventBus.start();		
-		Vision.EventBus.subscribe("imageadded", this.onImageAdded.bind(this));
-	},
-
-	onImageAdded: function(event) {
-		var imageJson = JSON.parse(event.data);
-		var newImage = Vision.model.Image.create(imageJson);
-		this.getStore('images').insert(0, newImage);
-		this.updateStores(newImage);
+		//nothing here
 	},
 
 	getCanvas: function() {
