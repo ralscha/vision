@@ -1,8 +1,5 @@
 package ch.rasc.vision.controller;
 
-import static ch.ralscha.extdirectspring.annotation.ExtDirectMethodType.STORE_MODIFY;
-import static ch.ralscha.extdirectspring.annotation.ExtDirectMethodType.STORE_READ;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +9,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Validator;
 
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.ralscha.extdirectspring.annotation.ExtDirectMethod;
+import static ch.ralscha.extdirectspring.annotation.ExtDirectMethodType.STORE_MODIFY;
+import static ch.ralscha.extdirectspring.annotation.ExtDirectMethodType.STORE_READ;
 import ch.ralscha.extdirectspring.bean.ExtDirectStoreResult;
 import ch.rasc.vision.Application;
 import ch.rasc.vision.dto.VisionResult;
@@ -59,6 +61,23 @@ public class ImageController {
 		ServletOutputStream outputStream = response.getOutputStream();
 		this.exodusManager.writeThumbnailBlob(id, outputStream);
 		outputStream.flush();
+	}
+
+	@GetMapping("/api/images")
+	public List<Image> listImages() {
+		return new ArrayList<>(read().getRecords());
+	}
+
+	@PostMapping("/api/images")
+	public Image saveImage(@RequestBody Image updatedEntity) {
+		ValidationMessagesResult<Image> result = update(updatedEntity);
+		return result.getRecords().isEmpty() ? updatedEntity
+				: result.getRecords().iterator().next();
+	}
+
+	@DeleteMapping("/api/images/{id}")
+	public boolean deleteImage(@PathVariable("id") long id) {
+		return destroy(id);
 	}
 
 	@ExtDirectMethod(STORE_READ)
