@@ -4,10 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Validator;
-
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,17 +12,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.ralscha.extdirectspring.annotation.ExtDirectMethod;
-import static ch.ralscha.extdirectspring.annotation.ExtDirectMethodType.STORE_MODIFY;
-import static ch.ralscha.extdirectspring.annotation.ExtDirectMethodType.STORE_READ;
-import ch.ralscha.extdirectspring.bean.ExtDirectStoreResult;
 import ch.rasc.vision.Application;
 import ch.rasc.vision.dto.VisionResult;
 import ch.rasc.vision.entity.Image;
-import ch.rasc.vision.util.ExodusManager;
+import ch.rasc.vision.util.InMemoryImageStore;
 import ch.rasc.vision.util.ValidationMessages;
 import ch.rasc.vision.util.ValidationMessagesResult;
 import ch.rasc.vision.util.ValidationUtil;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Validator;
 
 @RestController
 public class ImageController {
@@ -35,13 +30,13 @@ public class ImageController {
 
 	private final Validator validator;
 
-	private final ExodusManager exodusManager;
+	private final InMemoryImageStore imageStore;
 
 	public ImageController(VisionService visionService, Validator validator,
-			ExodusManager exodusManager) {
+			InMemoryImageStore imageStore) {
 		this.visionService = visionService;
 		this.validator = validator;
-		this.exodusManager = exodusManager;
+		this.imageStore = imageStore;
 	}
 
 	@GetMapping("/image/{id}")
@@ -49,7 +44,7 @@ public class ImageController {
 			throws IOException {
 		@SuppressWarnings("resource")
 		ServletOutputStream outputStream = response.getOutputStream();
-		this.exodusManager.writeImageBlob(id, outputStream);
+		this.imageStore.writeImageBlob(id, outputStream);
 		outputStream.flush();
 	}
 
@@ -59,20 +54,18 @@ public class ImageController {
 		response.setContentType("image/jpeg");
 		@SuppressWarnings("resource")
 		ServletOutputStream outputStream = response.getOutputStream();
-		this.exodusManager.writeThumbnailBlob(id, outputStream);
+		this.imageStore.writeThumbnailBlob(id, outputStream);
 		outputStream.flush();
 	}
 
 	@GetMapping("/api/images")
 	public List<Image> listImages() {
-		return new ArrayList<>(read().getRecords());
+		return new ArrayList<>(read());
 	}
 
 	@PostMapping("/api/images")
-	public Image saveImage(@RequestBody Image updatedEntity) {
-		ValidationMessagesResult<Image> result = update(updatedEntity);
-		return result.getRecords().isEmpty() ? updatedEntity
-				: result.getRecords().iterator().next();
+	public ValidationMessagesResult<Image> saveImage(@RequestBody Image updatedEntity) {
+		return update(updatedEntity);
 	}
 
 	@DeleteMapping("/api/images/{id}")
@@ -80,14 +73,11 @@ public class ImageController {
 		return destroy(id);
 	}
 
-	@ExtDirectMethod(STORE_READ)
-	public ExtDirectStoreResult<Image> read() {
-		List<Image> results = this.exodusManager.readAll();
-		return new ExtDirectStoreResult<>(results.size(), results);
+	private List<Image> read() {
+		return this.imageStore.readAll();
 	}
 
-	@ExtDirectMethod(STORE_MODIFY)
-	public ValidationMessagesResult<Image> update(Image updatedEntity) {
+	private ValidationMessagesResult<Image> update(Image updatedEntity) {
 
 		List<ValidationMessages> violations = new ArrayList<>();
 		violations.addAll(ValidationUtil.validateEntity(this.validator, updatedEntity));
@@ -97,7 +87,7 @@ public class ImageController {
 			if (StringUtils.hasText(data) && data.startsWith("data:")) {
 
 				if (updatedEntity.getId() >= 0) {
-					this.exodusManager.deleteImage(updatedEntity.getId());
+					this.imageStore.deleteImage(updatedEntity.getId());
 				}
 
 				try {
@@ -117,7 +107,7 @@ public class ImageController {
 					Application.logger.error("vision", e);
 				}
 
-				Image image = this.exodusManager.insertImage(updatedEntity);
+				Image image = this.imageStore.insertImage(updatedEntity);
 				image.setData(null);
 				return new ValidationMessagesResult<>(image);
 			}
@@ -129,9 +119,8 @@ public class ImageController {
 		return result;
 	}
 
-	@ExtDirectMethod
-	public boolean destroy(long id) {
-		this.exodusManager.deleteImage(id);
+	private boolean destroy(long id) {
+		this.imageStore.deleteImage(id);
 		return true;
 	}
 

@@ -1,0 +1,455 @@
+<main class="shell">
+  <header class="hero">
+    <h1>Vision Demo</h1>
+  </header>
+
+  @if (errorMessage()) {
+    <section class="status error">{{ errorMessage() }}</section>
+  }
+
+  <section class="workspace">
+    <aside class="panel sidebar">
+      <div class="panel-header">
+        <div>
+          <p class="section-kicker">Library</p>
+          <h2>Images</h2>
+        </div>
+        <label class="upload-button" [class.busy]="isBusy()">
+          <input
+            type="file"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+            [disabled]="isBusy()"
+          />
+          <span>{{ isBusy() ? 'Uploading…' : 'Upload image' }}</span>
+        </label>
+      </div>
+
+      <div class="thumbnail-list">
+        @for (image of images(); track image.id) {
+          <button
+            type="button"
+            class="thumb-card"
+            [class.active]="selectedImage()?.id === image.id"
+            (click)="selectImage(image.id)"
+          >
+            <img [src]="thumbnailUrl(image.id)" [alt]="image.name" />
+            <span>{{ image.name }}</span>
+          </button>
+        } @empty {
+          <div class="empty-state">
+            <p>No analyzed images yet.</p>
+            <p>Upload a photo to create the first result set.</p>
+          </div>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="danger-button"
+        (click)="deleteSelectedImage()"
+        [disabled]="!selectedImage() || isBusy()"
+      >
+        Delete selected image
+      </button>
+    </aside>
+
+    <section class="panel viewer-panel">
+      <div class="panel-header compact">
+        <div>
+          <p class="section-kicker">Preview</p>
+          <h2>{{ selectedImage()?.name ?? 'No image selected' }}</h2>
+        </div>
+        @if (selectedImage()) {
+          <p class="meta">{{ formatBytes(selectedImage()!.size) }}</p>
+        }
+      </div>
+
+      <div class="viewer-frame" [class.empty]="!displayImageUrl()">
+        @if (displayImageUrl()) {
+          <svg class="viewer-svg" preserveAspectRatio="xMinYMin meet" [attr.viewBox]="viewBox()">
+            <image
+              [attr.href]="displayImageUrl()"
+              x="0"
+              y="0"
+              [attr.width]="imageSize().width"
+              [attr.height]="imageSize().height"
+              preserveAspectRatio="xMinYMin meet"
+            />
+
+            @if (selectedPolygonPoints()) {
+              <polygon class="overlay-polygon" [attr.points]="selectedPolygonPoints()" />
+            }
+
+            @if (selectedPoint()) {
+              <circle
+                class="overlay-point"
+                [attr.cx]="selectedPoint()!.x"
+                [attr.cy]="selectedPoint()!.y"
+                r="10"
+              />
+            }
+          </svg>
+        } @else {
+          <div class="empty-state large">
+            <p>Select an analyzed image to inspect its annotations.</p>
+          </div>
+        }
+      </div>
+
+      @if (selectedLocations().length > 0) {
+        <div class="location-bar">
+          <span>Locations</span>
+          <div class="location-links">
+            @for (location of selectedLocations(); track $index) {
+              <a [href]="openStreetMapUrl(location)" target="_blank" rel="noreferrer">
+                {{ location.lat | number: '1.4-4' }}, {{ location.lng | number: '1.4-4' }}
+              </a>
+            }
+          </div>
+        </div>
+      }
+    </section>
+
+    <section class="panel insights-panel">
+      <div class="panel-header compact">
+        <div>
+          <p class="section-kicker">Annotations</p>
+          <h2>Results</h2>
+        </div>
+      </div>
+
+      <nav class="tabs" aria-label="Vision result sections">
+        @for (tab of tabs; track tab.id) {
+          <button
+            type="button"
+            [class.active]="activeTab() === tab.id"
+            [disabled]="!selectedImage()"
+            (click)="setActiveTab(tab.id)"
+          >
+            {{ tab.label }}
+          </button>
+        }
+      </nav>
+
+      <div class="tab-content">
+        @if (!selectedImage()) {
+          <div class="empty-state large">
+            <p>
+              Choose an image to see labels, landmarks, logos, text, faces, and safe search signals.
+            </p>
+          </div>
+        }
+
+        @if (selectedImage() && activeTab() === 'labels') {
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (label of selectedImage()!.labels ?? []; track $index) {
+                  <tr>
+                    <td>{{ label.description }}</td>
+                    <td>
+                      <div class="score-cell">
+                        <progress max="1" [value]="label.score"></progress>
+                        <span>{{ asPercent(label.score) }}</span>
+                      </div>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="2">No label detections.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        @if (selectedImage() && activeTab() === 'web') {
+          <div class="stacked-sections">
+            <section class="table-card">
+              <h3>Web Entities</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (entity of selectedImage()!.web?.webEntities ?? []; track $index) {
+                    <tr>
+                      <td>{{ entity.description }}</td>
+                      <td>{{ asPercent(entity.score) }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="2">No web entities.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </section>
+
+            <section class="table-card">
+              <h3>Full Matching Images</h3>
+              <ul class="link-list">
+                @for (entry of selectedImage()!.web?.fullMatchingImages ?? []; track entry.url) {
+                  <li>
+                    <a [href]="entry.url" target="_blank" rel="noreferrer">{{ entry.url }}</a>
+                  </li>
+                } @empty {
+                  <li>No full matches.</li>
+                }
+              </ul>
+            </section>
+
+            <section class="table-card">
+              <h3>Partial Matching Images</h3>
+              <ul class="link-list">
+                @for (entry of selectedImage()!.web?.partialMatchingImages ?? []; track entry.url) {
+                  <li>
+                    <a [href]="entry.url" target="_blank" rel="noreferrer">{{ entry.url }}</a>
+                  </li>
+                } @empty {
+                  <li>No partial matches.</li>
+                }
+              </ul>
+            </section>
+
+            <section class="table-card">
+              <h3>Pages With Matching Images</h3>
+              <ul class="link-list">
+                @for (
+                  entry of selectedImage()!.web?.pagesWithMatchingImages ?? [];
+                  track entry.url
+                ) {
+                  <li>
+                    <a [href]="entry.url" target="_blank" rel="noreferrer">{{ entry.url }}</a>
+                  </li>
+                } @empty {
+                  <li>No related pages.</li>
+                }
+              </ul>
+            </section>
+          </div>
+        }
+
+        @if (selectedImage() && activeTab() === 'faces') {
+          <div class="split-grid">
+            <section class="table-card">
+              <h3>Faces</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Joy</th>
+                    <th>Sorrow</th>
+                    <th>Anger</th>
+                    <th>Surprise</th>
+                    <th>Headwear</th>
+                    <th>Confidence</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (face of selectedImage()!.faces ?? []; track $index) {
+                    <tr
+                      class="interactive-row"
+                      [class.active]="selectedFace() === face"
+                      (click)="selectFace(face)"
+                    >
+                      <td>
+                        <div class="score-cell">
+                          <progress max="1" [value]="face.joyRating"></progress
+                          ><span>{{ face.joy }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="score-cell">
+                          <progress max="1" [value]="face.sorrowRating"></progress
+                          ><span>{{ face.sorrow }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="score-cell">
+                          <progress max="1" [value]="face.angerRating"></progress
+                          ><span>{{ face.anger }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="score-cell">
+                          <progress max="1" [value]="face.surpriseRating"></progress
+                          ><span>{{ face.surprise }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="score-cell">
+                          <progress max="1" [value]="face.headwearRating"></progress
+                          ><span>{{ face.headwear }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="score-cell">
+                          <progress max="1" [value]="face.detectionConfidence"></progress
+                          ><span>{{ asPercent(face.detectionConfidence) }}</span>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="6">No faces detected.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </section>
+
+            <section class="table-card">
+              <h3>Face Landmarks</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>X</th>
+                    <th>Y</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (landmark of selectedFace()?.landmarks ?? []; track $index) {
+                    <tr
+                      class="interactive-row"
+                      [class.active]="selectedFaceLandmark() === landmark"
+                      (click)="selectFaceLandmark(landmark)"
+                    >
+                      <td>{{ landmark.type }}</td>
+                      <td>{{ landmark.x | number: '1.0-0' }}</td>
+                      <td>{{ landmark.y | number: '1.0-0' }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="3">Select a face to inspect landmarks.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </section>
+          </div>
+        }
+
+        @if (selectedImage() && activeTab() === 'landmarks') {
+          <div class="stacked-sections">
+            <div class="table-card">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (landmark of selectedImage()!.landmarks ?? []; track $index) {
+                    <tr
+                      class="interactive-row"
+                      (click)="highlightPolygon(landmark.boundingPoly, landmark.locations)"
+                    >
+                      <td>{{ landmark.description }}</td>
+                      <td>{{ asPercent(landmark.score) }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="2">No landmark detections.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <section class="map-card">
+              <div class="map-copy">
+                <h3>Map</h3>
+                <p>
+                  {{
+                    selectedLocations().length > 0
+                      ? 'The map centers on the selected landmark result.'
+                      : 'Select a landmark with location metadata to center the map.'
+                  }}
+                </p>
+              </div>
+              <div class="map-frame" #mapContainer aria-label="Landmark map"></div>
+            </section>
+          </div>
+        }
+
+        @if (selectedImage() && activeTab() === 'logos') {
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (logo of selectedImage()!.logos ?? []; track $index) {
+                  <tr class="interactive-row" (click)="highlightPolygon(logo.boundingPoly)">
+                    <td>{{ logo.description }}</td>
+                    <td>{{ asPercent(logo.score) }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="2">No logos detected.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        @if (selectedImage() && activeTab() === 'text') {
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (text of selectedImage()!.texts ?? []; track $index) {
+                  <tr class="interactive-row" (click)="highlightPolygon(text.boundingPoly)">
+                    <td>{{ text.description }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td>No text annotations.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        @if (selectedImage() && activeTab() === 'safe-search') {
+          <div class="safe-search-grid">
+            @for (entry of safeSearchEntries(); track entry.label) {
+              <article class="safety-card">
+                <p>{{ entry.label }}</p>
+                <strong>{{ entry.value }}</strong>
+                <progress max="1" [value]="entry.rating"></progress>
+                <span>{{ asPercent(entry.rating) }}</span>
+              </article>
+            } @empty {
+              <div class="empty-state">
+                <p>No safe search data.</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  </section>
+</main>

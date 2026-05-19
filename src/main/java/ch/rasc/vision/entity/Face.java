@@ -3,10 +3,6 @@ package ch.rasc.vision.entity;
 import java.util.List;
 
 import com.google.cloud.vision.v1.Likelihood;
-
-import ch.rasc.extclassgenerator.Model;
-
-@Model(value = "Vision.model.Face", extend = "Vision.model.Base")
 public class Face {
 
 	private Float rollAngle;

@@ -2,9 +2,6 @@ package ch.rasc.vision.entity;
 
 import java.util.List;
 
-import ch.rasc.extclassgenerator.Model;
-
-@Model(value = "Vision.model.Logo", extend = "Vision.model.Base")
 public class Logo {
 
 	private String description;

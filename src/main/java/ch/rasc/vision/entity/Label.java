@@ -1,8 +1,5 @@
 package ch.rasc.vision.entity;
 
-import ch.rasc.extclassgenerator.Model;
-
-@Model(value = "Vision.model.Label", extend = "Vision.model.Base")
 public class Label {
 
 	private String description;

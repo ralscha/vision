@@ -1,27 +1,12 @@
-server:
-  port: 80
-#  compression:
-#     enabled: true
-#     mime-types: text/html,text/xml,text/plain,text/css,application/json,application/javascript,image/svg+xml,application/x-font-ttf,application/x-font-truetype,application/x-font-opentype,application/vnd.ms-fontobject,application/font-sfnt  
+﻿server:
+  port: 8080
 
 app:
-  credentials-path: D:/ws/ext/vision/visiondemo.json
-  xodus-path: ./db
+  credentials-path: C:\\w\\ws\\ext\\vision\\spiritual-craft-792-cb3454790a11.json
 
 spring:
-  resources:
-    cache:
-      period: 31556926
-
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 20MB
 
-logging:
-  level:
-    org.springframework: WARN
-    org.mongodb: WARN
-    org.apache: WARN
-    ch: WARN
-  file: ./app.log    

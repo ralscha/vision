@@ -5,12 +5,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import ch.rasc.extclassgenerator.Model;
-
-@Model(value = "Vision.model.Image", readMethod = "imageController.read",
-		createMethod = "imageController.update", updateMethod = "imageController.update",
-		rootProperty = "records", identifier = "negative", extend = "Vision.model.Base",
-		hasMany = { "Label", "Logo", "Landmark", "Text", "Face" }, writeAllFields = false)
 @JsonInclude(Include.NON_NULL)
 public class Image {
 

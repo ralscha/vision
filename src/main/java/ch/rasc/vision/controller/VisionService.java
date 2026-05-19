@@ -19,7 +19,6 @@ import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
 import com.google.cloud.vision.v1.EntityAnnotation;
 import com.google.cloud.vision.v1.FaceAnnotation;
 import com.google.cloud.vision.v1.Feature;
-import com.google.cloud.vision.v1.Feature.Type;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageAnnotatorSettings;
 import com.google.cloud.vision.v1.Likelihood;
@@ -70,18 +69,23 @@ public class VisionService {
 
 			AnnotateImageRequest request = AnnotateImageRequest.newBuilder()
 					.addFeatures(
-							Feature.newBuilder().setType(Type.FACE_DETECTION).build())
+							Feature.newBuilder().setType(Feature.Type.FACE_DETECTION)
+									.build())
 					.addFeatures(
-							Feature.newBuilder().setType(Type.LANDMARK_DETECTION).build())
+							Feature.newBuilder().setType(Feature.Type.LANDMARK_DETECTION)
+									.build())
 					.addFeatures(
-							Feature.newBuilder().setType(Type.LOGO_DETECTION).build())
-					.addFeatures(Feature.newBuilder().setType(Type.LABEL_DETECTION)
-							.setMaxResults(20).build())
-					.addFeatures(
-							Feature.newBuilder().setType(Type.TEXT_DETECTION).build())
-					.addFeatures(Feature.newBuilder().setType(Type.SAFE_SEARCH_DETECTION)
+							Feature.newBuilder().setType(Feature.Type.LOGO_DETECTION)
+									.build())
+					.addFeatures(Feature.newBuilder()
+							.setType(Feature.Type.LABEL_DETECTION).setMaxResults(20)
 							.build())
-					.addFeatures(Feature.newBuilder().setType(Type.WEB_DETECTION)
+					.addFeatures(
+							Feature.newBuilder().setType(Feature.Type.TEXT_DETECTION)
+									.build())
+					.addFeatures(Feature.newBuilder()
+							.setType(Feature.Type.SAFE_SEARCH_DETECTION).build())
+					.addFeatures(Feature.newBuilder().setType(Feature.Type.WEB_DETECTION)
 							.setMaxResults(10).build())
 					.setImage(img).build();
 			requests.add(request);
@@ -90,10 +94,10 @@ public class VisionService {
 			BatchAnnotateImagesResponse response = vision.batchAnnotateImages(requests);
 			List<AnnotateImageResponse> responses = response.getResponsesList();
 			VisionResult result = new VisionResult();
-			if (responses != null) {
+			if (!responses.isEmpty()) {
 
 				for (AnnotateImageResponse resp : responses) {
-					if (resp.getLabelAnnotationsList() != null) {
+					if (!resp.getLabelAnnotationsList().isEmpty()) {
 						List<Label> labels = new ArrayList<>();
 						for (EntityAnnotation ea : resp.getLabelAnnotationsList()) {
 							Label l = new Label();
@@ -103,14 +107,14 @@ public class VisionService {
 						}
 						result.setLabels(labels);
 					}
-					if (resp.getLandmarkAnnotationsList() != null) {
+					if (!resp.getLandmarkAnnotationsList().isEmpty()) {
 						List<Landmark> landmarks = new ArrayList<>();
 						for (EntityAnnotation ea : resp.getLandmarkAnnotationsList()) {
 							Landmark l = new Landmark();
 							l.setScore(ea.getScore());
 							l.setDescription(ea.getDescription());
 
-							if (ea.getBoundingPoly() != null) {
+							if (!ea.getBoundingPoly().getVerticesList().isEmpty()) {
 								l.setBoundingPoly(ea.getBoundingPoly().getVerticesList()
 										.stream().map(v -> {
 											Vertex vertex = new Vertex();
@@ -119,7 +123,7 @@ public class VisionService {
 											return vertex;
 										}).collect(Collectors.toList()));
 							}
-							if (ea.getLocationsList() != null) {
+							if (!ea.getLocationsList().isEmpty()) {
 								l.setLocations(ea.getLocationsList().stream().map(loc -> {
 									LngLat ll = new LngLat();
 									ll.setLng(loc.getLatLng().getLongitude());
@@ -131,14 +135,14 @@ public class VisionService {
 						}
 						result.setLandmarks(landmarks);
 					}
-					if (resp.getLogoAnnotationsList() != null) {
+					if (!resp.getLogoAnnotationsList().isEmpty()) {
 						List<Logo> logos = new ArrayList<>();
 						for (EntityAnnotation ea : resp.getLogoAnnotationsList()) {
 							Logo l = new Logo();
 							l.setScore(ea.getScore());
 							l.setDescription(ea.getDescription());
 
-							if (ea.getBoundingPoly() != null) {
+							if (!ea.getBoundingPoly().getVerticesList().isEmpty()) {
 								l.setBoundingPoly(ea.getBoundingPoly().getVerticesList()
 										.stream().map(v -> {
 											Vertex vertex = new Vertex();
@@ -151,13 +155,13 @@ public class VisionService {
 						}
 						result.setLogos(logos);
 					}
-					if (resp.getTextAnnotationsList() != null) {
+					if (!resp.getTextAnnotationsList().isEmpty()) {
 						List<Text> texts = new ArrayList<>();
 						for (EntityAnnotation ea : resp.getTextAnnotationsList()) {
 							Text t = new Text();
 							t.setDescription(ea.getDescription());
 
-							if (ea.getBoundingPoly() != null) {
+							if (!ea.getBoundingPoly().getVerticesList().isEmpty()) {
 								t.setBoundingPoly(ea.getBoundingPoly().getVerticesList()
 										.stream().filter(Objects::nonNull).map(v -> {
 											Vertex vertex = new Vertex();
@@ -171,7 +175,7 @@ public class VisionService {
 						}
 						result.setTexts(texts);
 					}
-					if (resp.getFaceAnnotationsList() != null) {
+					if (!resp.getFaceAnnotationsList().isEmpty()) {
 						List<Face> faces = new ArrayList<>();
 						for (FaceAnnotation fa : resp.getFaceAnnotationsList()) {
 							Face face = new Face();
@@ -208,7 +212,7 @@ public class VisionService {
 							face.setHeadwearRating(
 									likelihoodToNumber(fa.getHeadwearLikelihood()));
 
-							if (fa.getBoundingPoly() != null) {
+							if (!fa.getBoundingPoly().getVerticesList().isEmpty()) {
 								face.setBoundingPoly(fa.getBoundingPoly()
 										.getVerticesList().stream().map(v -> {
 											Vertex vertex = new Vertex();
@@ -218,7 +222,7 @@ public class VisionService {
 										}).collect(Collectors.toList()));
 							}
 
-							if (fa.getFdBoundingPoly() != null) {
+							if (!fa.getFdBoundingPoly().getVerticesList().isEmpty()) {
 								face.setFdBoundingPoly(fa.getFdBoundingPoly()
 										.getVerticesList().stream().map(v -> {
 											Vertex vertex = new Vertex();
@@ -228,7 +232,7 @@ public class VisionService {
 										}).collect(Collectors.toList()));
 							}
 
-							if (fa.getLandmarksList() != null) {
+							if (!fa.getLandmarksList().isEmpty()) {
 								face.setLandmarks(
 										fa.getLandmarksList().stream().map(l -> {
 											FaceLandmark fl = new FaceLandmark();
@@ -246,7 +250,8 @@ public class VisionService {
 					}
 					SafeSearchAnnotation safeSearchAnnotation = resp
 							.getSafeSearchAnnotation();
-					if (safeSearchAnnotation != null) {
+					if (!safeSearchAnnotation.equals(
+							SafeSearchAnnotation.getDefaultInstance())) {
 						SafeSearch safeSearch = new SafeSearch();
 						safeSearch.setAdult(safeSearchAnnotation.getAdult());
 						safeSearch.setAdultRating(
@@ -265,7 +270,7 @@ public class VisionService {
 					}
 
 					WebDetection webDetection = resp.getWebDetection();
-					if (webDetection != null) {
+					if (!webDetection.equals(WebDetection.getDefaultInstance())) {
 						Web web = new Web();
 						List<WebImage> fullMatchingImagesList = webDetection
 								.getFullMatchingImagesList();
@@ -276,7 +281,7 @@ public class VisionService {
 						List<WebEntity> webEntitiesList = webDetection
 								.getWebEntitiesList();
 
-						if (fullMatchingImagesList != null) {
+						if (!fullMatchingImagesList.isEmpty()) {
 							web.setFullMatchingImages(
 									fullMatchingImagesList.stream().map(e -> {
 										WebUrl wu = new WebUrl();
@@ -286,7 +291,7 @@ public class VisionService {
 									}).collect(Collectors.toList()));
 						}
 
-						if (pagesWithMatchingImagesList != null) {
+						if (!pagesWithMatchingImagesList.isEmpty()) {
 							web.setPagesWithMatchingImages(
 									pagesWithMatchingImagesList.stream().map(e -> {
 										WebUrl wu = new WebUrl();
@@ -296,7 +301,7 @@ public class VisionService {
 									}).collect(Collectors.toList()));
 						}
 
-						if (partialMatchingImagesList != null) {
+						if (!partialMatchingImagesList.isEmpty()) {
 							web.setPartialMatchingImages(
 									partialMatchingImagesList.stream().map(e -> {
 										WebUrl wu = new WebUrl();
@@ -306,7 +311,7 @@ public class VisionService {
 									}).collect(Collectors.toList()));
 						}
 
-						if (webEntitiesList != null) {
+						if (!webEntitiesList.isEmpty()) {
 							web.setWebEntities(webEntitiesList.stream().map(e -> {
 								ch.rasc.vision.entity.WebEntity we = new ch.rasc.vision.entity.WebEntity();
 								we.setDescription(e.getDescription());
@@ -326,24 +331,14 @@ public class VisionService {
 	}
 
 	private static float likelihoodToNumber(Likelihood likelihood) {
-		switch (likelihood) {
-		case UNKNOWN:
-			return 0f;
-		case VERY_UNLIKELY:
-			return 0.2f;
-		case UNLIKELY:
-			return 0.4f;
-		case POSSIBLE:
-			return 0.6f;
-		case LIKELY:
-			return 0.8f;
-		case VERY_LIKELY:
-			return 1f;
-		case UNRECOGNIZED:
-			return 0f;
-		default:
-			return 0f;
-		}
+		return switch (likelihood) {
+		case VERY_UNLIKELY -> 0.2f;
+		case UNLIKELY -> 0.4f;
+		case POSSIBLE -> 0.6f;
+		case LIKELY -> 0.8f;
+		case VERY_LIKELY -> 1f;
+		case UNKNOWN, UNRECOGNIZED -> 0f;
+		};
 	}
 
 }
