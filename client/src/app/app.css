@@ -113,6 +113,17 @@
   font-weight: 600;
 }
 
+.upload-actions {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.upload-button.secondary {
+  background: #edf6ed;
+  color: #234723;
+  border: 1px solid rgba(56, 91, 56, 0.24);
+}
+
 .upload-button input {
   display: none;
 }
@@ -120,6 +131,13 @@
 .upload-button.busy {
   opacity: 0.72;
   cursor: progress;
+}
+
+.upload-help {
+  margin: 0 1rem 1rem;
+  color: #486448;
+  font-size: 0.92rem;
+  line-height: 1.4;
 }
 
 .thumbnail-list {

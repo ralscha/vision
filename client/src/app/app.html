@@ -14,16 +14,33 @@
           <p class="section-kicker">Library</p>
           <h2>Images</h2>
         </div>
-        <label class="upload-button" [class.busy]="isBusy()">
-          <input
-            type="file"
-            accept="image/*"
-            (change)="onFileSelected($event)"
-            [disabled]="isBusy()"
-          />
-          <span>{{ isBusy() ? 'Uploading…' : 'Upload image' }}</span>
-        </label>
+        <div class="upload-actions">
+          <label class="upload-button" [class.busy]="isBusy()">
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onFileSelected($event, 'backend')"
+              [disabled]="isBusy()"
+            />
+            <span>{{ isBusy() ? 'Uploading…' : 'Via backend' }}</span>
+          </label>
+
+          <label class="upload-button secondary" [class.busy]="isBusy()">
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onFileSelected($event, 'presigned')"
+              [disabled]="isBusy()"
+            />
+            <span>{{ isBusy() ? 'Uploading…' : 'Via signed URL' }}</span>
+          </label>
+        </div>
       </div>
+
+      <p class="upload-help">
+        Choose whether the browser sends bytes through Spring or uploads directly to Cloud Storage
+        first.
+      </p>
 
       <div class="thumbnail-list">
         @for (image of images(); track image.id) {

@@ -2,7 +2,8 @@
   port: 8080
 
 app:
-  credentials-path: C:\\w\\ws\\ext\\vision\\spiritual-craft-792-cb3454790a11.json
+  credentials-path: C:\\w\\ws\\ext\\vision\\spiritual-craft-792-8b0436b690af.json
+  storage-bucket: rasc-demo-vision
 
 spring:
   servlet:

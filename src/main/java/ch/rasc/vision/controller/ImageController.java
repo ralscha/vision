@@ -2,6 +2,7 @@ package ch.rasc.vision.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.util.StringUtils;
@@ -68,6 +69,19 @@ public class ImageController {
 		return update(updatedEntity);
 	}
 
+	@PostMapping("/api/images/presigned-upload")
+	public VisionService.SignedUploadTarget createPresignedUpload(
+			@RequestBody PresignedUploadRequest request) throws IOException {
+		return this.visionService.createSignedUploadTarget(request.name(),
+				request.type());
+	}
+
+	@PostMapping("/api/images/storage")
+	public ValidationMessagesResult<Image> saveStorageImage(
+			@RequestBody StorageImageRequest request) {
+		return updateFromStorage(request);
+	}
+
 	@DeleteMapping("/api/images/{id}")
 	public boolean deleteImage(@PathVariable("id") long id) {
 		return destroy(id);
@@ -119,9 +133,79 @@ public class ImageController {
 		return result;
 	}
 
+	private ValidationMessagesResult<Image> updateFromStorage(
+			StorageImageRequest request) {
+		Image image = new Image();
+		image.setId(-1);
+		image.setName(request.name());
+		image.setType(request.type());
+		image.setSize(request.size());
+
+		List<ValidationMessages> violations = new ArrayList<>();
+		violations.addAll(ValidationUtil.validateEntity(this.validator, image));
+
+		if (!StringUtils.hasText(request.objectName())) {
+			ValidationMessages validationMessage = new ValidationMessages();
+			validationMessage.setField("objectName");
+			validationMessage.setMessage("Object name is required.");
+			violations.add(validationMessage);
+		}
+
+		if (violations.isEmpty()) {
+			if (image.getId() >= 0) {
+				this.imageStore.deleteImage(image.getId());
+			}
+
+			try {
+				VisionResult result = this.visionService
+						.visionFromStorage(request.objectName());
+				image.setLabels(result.getLabels());
+				image.setSafeSearch(result.getSafeSearch());
+				image.setLogos(result.getLogos());
+				image.setLandmarks(result.getLandmarks());
+				image.setTexts(result.getTexts());
+				image.setFaces(result.getFaces());
+				image.setWeb(result.getWeb());
+
+				byte[] imageBytes = this.visionService
+						.downloadStorageObject(request.objectName());
+				String contentType = StringUtils.hasText(image.getType()) ? image.getType()
+						: "application/octet-stream";
+				image.setData("data:" + contentType + ";base64,"
+						+ Base64.getEncoder().encodeToString(imageBytes));
+			}
+			catch (Exception e) {
+				Application.logger.error("vision storage", e);
+			}
+
+			if (StringUtils.hasText(image.getData())) {
+				Image storedImage = this.imageStore.insertImage(image);
+				storedImage.setData(null);
+				return new ValidationMessagesResult<>(storedImage);
+			}
+
+			ValidationMessages validationMessage = new ValidationMessages();
+			validationMessage.setField("objectName");
+			validationMessage.setMessage(
+					"Uploaded object could not be analyzed or downloaded from Cloud Storage.");
+			violations.add(validationMessage);
+		}
+
+		ValidationMessagesResult<Image> result = new ValidationMessagesResult<>(image);
+		result.setValidations(violations);
+		return result;
+	}
+
 	private boolean destroy(long id) {
 		this.imageStore.deleteImage(id);
 		return true;
+	}
+
+	public record PresignedUploadRequest(String name, String type) {
+	}
+
+	public record StorageImageRequest(String name, String type, long size,
+			String objectName) {
 	}
 
 }

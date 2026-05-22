@@ -1,18 +1,30 @@
 package ch.rasc.vision.controller;
 
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.cloud.ReadChannel;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.HttpMethod;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.Storage.SignUrlOption;
+import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -21,6 +33,7 @@ import com.google.cloud.vision.v1.FaceAnnotation;
 import com.google.cloud.vision.v1.Feature;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageAnnotatorSettings;
+import com.google.cloud.vision.v1.ImageSource;
 import com.google.cloud.vision.v1.Likelihood;
 import com.google.cloud.vision.v1.SafeSearchAnnotation;
 import com.google.cloud.vision.v1.WebDetection;
@@ -53,6 +66,50 @@ public class VisionService {
 	}
 
 	public VisionResult vision(String base64data) throws IOException, Exception {
+		com.google.cloud.vision.v1.Image image = com.google.cloud.vision.v1.Image
+				.newBuilder()
+				.setContent(ByteString.copyFrom(Base64.getDecoder().decode(base64data)))
+				.build();
+		return annotate(image);
+	}
+
+	public VisionResult visionFromStorage(String objectName) throws IOException, Exception {
+		com.google.cloud.vision.v1.Image image = com.google.cloud.vision.v1.Image
+				.newBuilder().setSource(ImageSource.newBuilder().setGcsImageUri(
+						"gs://" + storageBucket() + "/" + objectName))
+				.build();
+		return annotate(image);
+	}
+
+	public SignedUploadTarget createSignedUploadTarget(String fileName,
+			String contentType) throws IOException {
+		String objectName = "uploads/" + UUID.randomUUID() + "-" + sanitizeFileName(fileName);
+		BlobInfo blobInfo = BlobInfo.newBuilder(storageBucket(), objectName)
+				.setContentType(StringUtils.hasText(contentType) ? contentType
+						: "application/octet-stream")
+				.build();
+
+		URL signedUrl = storage().signUrl(blobInfo, 15, TimeUnit.MINUTES,
+				SignUrlOption.httpMethod(HttpMethod.PUT),
+				SignUrlOption.withV4Signature(),
+				SignUrlOption.withExtHeaders(
+						java.util.Map.of("Content-Type", blobInfo.getContentType())));
+
+		return new SignedUploadTarget(signedUrl.toString(), objectName,
+				blobInfo.getContentType());
+	}
+
+	public byte[] downloadStorageObject(String objectName) throws IOException {
+		try (ReadChannel channel = storage()
+				.reader(BlobId.of(storageBucket(), objectName));
+				java.io.InputStream inputStream = java.nio.channels.Channels
+						.newInputStream(channel)) {
+			return inputStream.readAllBytes();
+		}
+	}
+
+	private VisionResult annotate(com.google.cloud.vision.v1.Image image)
+			throws IOException, Exception {
 		ServiceAccountCredentials credentials = ServiceAccountCredentials.fromStream(
 				Files.newInputStream(Paths.get(this.appConfig.getCredentialsPath())));
 		ImageAnnotatorSettings settings = ImageAnnotatorSettings.newBuilder()
@@ -61,12 +118,6 @@ public class VisionService {
 		try (ImageAnnotatorClient vision = ImageAnnotatorClient.create(settings)) {
 
 			List<AnnotateImageRequest> requests = new ArrayList<>();
-			com.google.cloud.vision.v1.Image img = com.google.cloud.vision.v1.Image
-					.newBuilder()
-					.setContent(
-							ByteString.copyFrom(Base64.getDecoder().decode(base64data)))
-					.build();
-
 			AnnotateImageRequest request = AnnotateImageRequest.newBuilder()
 					.addFeatures(
 							Feature.newBuilder().setType(Feature.Type.FACE_DETECTION)
@@ -87,7 +138,7 @@ public class VisionService {
 							.setType(Feature.Type.SAFE_SEARCH_DETECTION).build())
 					.addFeatures(Feature.newBuilder().setType(Feature.Type.WEB_DETECTION)
 							.setMaxResults(10).build())
-					.setImage(img).build();
+					.setImage(image).build();
 			requests.add(request);
 
 			// Performs label detection on the image file
@@ -328,6 +379,37 @@ public class VisionService {
 
 			return result;
 		}
+	}
+
+	private Storage storage() throws IOException {
+		ServiceAccountCredentials credentials = ServiceAccountCredentials.fromStream(
+				Files.newInputStream(Paths.get(this.appConfig.getCredentialsPath())));
+		return StorageOptions.newBuilder().setCredentials(credentials).build()
+				.getService();
+	}
+
+	private String storageBucket() {
+		if (!StringUtils.hasText(this.appConfig.getStorageBucket())) {
+			throw new IllegalStateException(
+					"app.storage-bucket must be configured for signed uploads");
+		}
+		return this.appConfig.getStorageBucket();
+	}
+
+	private static String sanitizeFileName(String fileName) {
+		if (!StringUtils.hasText(fileName)) {
+			return "upload.bin";
+		}
+
+		String sanitized = fileName.replace('\\', '-').replace('/', '-')
+				.replaceAll("[^A-Za-z0-9._-]", "-");
+		return sanitized.isBlank() ? "upload.bin"
+				: new String(sanitized.getBytes(StandardCharsets.UTF_8),
+						StandardCharsets.UTF_8);
+	}
+
+	public record SignedUploadTarget(String uploadUrl, String objectName,
+			String contentType) {
 	}
 
 	private static float likelihoodToNumber(Likelihood likelihood) {
