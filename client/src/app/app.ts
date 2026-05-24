@@ -7,6 +7,7 @@ import { VisionApiService } from './vision-api.service';
 import { Face, FaceLandmark, LngLat, SafeSearch, Vertex, VisionImage } from './vision.models';
 
 type TabId = 'labels' | 'web' | 'faces' | 'landmarks' | 'logos' | 'text' | 'safe-search';
+type UploadMode = 'backend' | 'presigned';
 
 @Component({
   selector: 'app-root',
@@ -118,7 +119,7 @@ export class App {
     void this.loadImages();
   }
 
-  protected async onFileSelected(event: Event): Promise<void> {
+  protected async onFileSelected(event: Event, mode: UploadMode): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
 
@@ -130,14 +131,11 @@ export class App {
     this.isBusy.set(true);
 
     try {
-      const dataUrl = await this.readFileAsDataUrl(file);
-      const created = await firstValueFrom(this.visionApi.uploadImage(file, dataUrl));
+      const created = await this.uploadImage(file, mode);
       this.images.update((images) => [...images, created]);
       this.selectImage(created.id);
     } catch {
-      this.errorMessage.set(
-        'Image upload failed. Verify the Spring backend is running on port 8080.',
-      );
+      this.errorMessage.set(this.uploadErrorMessage(mode));
     } finally {
       this.isBusy.set(false);
       input.value = '';
@@ -385,5 +383,22 @@ export class App {
       reader.onload = () => resolve(String(reader.result));
       reader.readAsDataURL(file);
     });
+  }
+
+  private async uploadImage(file: File, mode: UploadMode): Promise<VisionImage> {
+    if (mode === 'presigned') {
+      return firstValueFrom(this.visionApi.uploadImageViaPresignedUrl(file));
+    }
+
+    const dataUrl = await this.readFileAsDataUrl(file);
+    return firstValueFrom(this.visionApi.uploadImage(file, dataUrl));
+  }
+
+  private uploadErrorMessage(mode: UploadMode): string {
+    if (mode === 'presigned') {
+      return 'Signed upload failed. Verify the backend is running, app.storage-bucket is configured, and the bucket allows browser PUT requests.';
+    }
+
+    return 'Image upload failed. Verify the Spring backend is running on port 8080.';
   }
 }

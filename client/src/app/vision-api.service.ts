@@ -1,11 +1,17 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, switchMap } from 'rxjs';
 
 import { VisionImage } from './vision.models';
 
 interface ApiResult<T> {
   records: T[];
+}
+
+interface PresignedUploadTarget {
+  uploadUrl: string;
+  objectName: string;
+  contentType: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -26,6 +32,43 @@ export class VisionApiService {
         data: dataUrl,
       })
       .pipe(
+        map((response) => {
+          const image = response.records[0];
+
+          if (!image) {
+            throw new Error('Upload response did not include an image record.');
+          }
+
+          return image;
+        }),
+      );
+  }
+
+  uploadImageViaPresignedUrl(file: File): Observable<VisionImage> {
+    return this.http
+      .post<PresignedUploadTarget>(`${this.imagesUrl}/presigned-upload`, {
+        name: file.name,
+        type: file.type,
+      })
+      .pipe(
+        switchMap((target) =>
+          this.http
+            .put(target.uploadUrl, file, {
+              headers: new HttpHeaders({
+                'Content-Type': target.contentType || file.type || 'application/octet-stream',
+              }),
+              responseType: 'text',
+            })
+            .pipe(map(() => target)),
+        ),
+        switchMap((target) =>
+          this.http.post<ApiResult<VisionImage>>(`${this.imagesUrl}/storage`, {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            objectName: target.objectName,
+          }),
+        ),
         map((response) => {
           const image = response.records[0];
 
