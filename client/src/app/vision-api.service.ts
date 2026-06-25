@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Observable, map, switchMap } from 'rxjs';
 
 import { VisionImage } from './vision.models';
@@ -14,7 +14,7 @@ interface PresignedUploadTarget {
   contentType: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class VisionApiService {
   private readonly http = inject(HttpClient);
   private readonly imagesUrl = '/api/images';

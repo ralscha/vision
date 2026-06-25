@@ -22,7 +22,7 @@
               (change)="onFileSelected($event, 'backend')"
               [disabled]="isBusy()"
             />
-            <span>{{ isBusy() ? 'Uploading…' : 'Via backend' }}</span>
+            <span>{{ isBusy() ? 'Uploading...' : 'Via backend' }}</span>
           </label>
 
           <label class="upload-button secondary" [class.busy]="isBusy()">
@@ -32,7 +32,7 @@
               (change)="onFileSelected($event, 'presigned')"
               [disabled]="isBusy()"
             />
-            <span>{{ isBusy() ? 'Uploading…' : 'Via signed URL' }}</span>
+            <span>{{ isBusy() ? 'Uploading...' : 'Via signed URL' }}</span>
           </label>
         </div>
       </div>

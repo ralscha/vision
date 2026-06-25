@@ -1,14 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import * as maplibregl from 'maplibre-gl';
 import { firstValueFrom } from 'rxjs';
 
@@ -22,7 +13,6 @@ type UploadMode = 'backend' | 'presigned';
   selector: 'app-root',
   imports: [CommonModule],
   templateUrl: './app.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.css',
 })
 export class App {
